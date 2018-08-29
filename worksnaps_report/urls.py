@@ -19,6 +19,7 @@ from reports import views as reports_views
 
 urlpatterns = [
     url(r'^biggboss/', admin.site.urls),
-    url(r'^refesh_projects/',reports_views.create_project,name='refresh the projects')
+    url(r'^refesh_projects/',reports_views.create_project,name='refresh the projects'),
+    url(r'^refesh_users/',reports_views.create_users,name='refresh the users')
 
 ]

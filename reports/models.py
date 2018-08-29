@@ -11,3 +11,23 @@ class ProjectsList(models.Model):
 	def __str__(self):
 		return "%s"%(self.project_name)
 
+class UsersList(models.Model):
+	user_id = models.CharField(max_length=25)
+	user_email = models.CharField(max_length=100)
+	user_first_name = models.CharField(max_length=25)
+	user_last_name = models.CharField(max_length=25)
+	user_login_as = models.CharField(max_length=25)
+
+	def __str__(self):
+		return "%s"%(self.user_email)
+
+class UsersSummaryReport(models.Model):
+	user_name = models.CharField(max_length=100)
+	user_id = models.CharField(max_length=10)
+	date = models.CharField(max_length=25)
+	duration = models.CharField(max_length=25)
+	project_name = models.CharField(max_length=200)
+
+	def __str__(self):
+		return "%s,%s"%(self.date,self.user_name)
+
