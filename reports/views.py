@@ -71,23 +71,24 @@ def create_project(request):
 	return JsonResponse({"Refresh":"Success"})
 
 def create_users_summary(request):
-	from_date = '2018-08-23'
-	to_date = '2018-08-24'
-	summary_qs = UsersSummaryReport.objects.get(date=to_date)
-	users_ids = [single_date.user_id for single_date in summary_qs]
+	from_date = '2018-07-31'
+	to_date = '2018-08-01'
+	# summary_qs = UsersSummaryReport.objects.get(date=to_date)
+	# users_ids = [single_date.user_id for single_date in summary_qs]
 	users_qs = UsersList.objects.only('user_id')
 	users_ids = [single_user.user_id for single_user in users_qs]
 	for user_id in users_ids:
 		worksnaps_summary = get_summary(user_id,from_date,to_date)
-		print(project_ids,"kliojiwk-[rgepmkgk-,o")
-		for i,value in enumerate(worksnaps_summary.get("manager_report")):
-				if value.get('id',0) not in project_ids:
-					print(value.get('id',0),"cooollllllll")
-					ProjectsList.objects.create(
-						project_id=value.get('id',''),project_name=value.get(
-							'name',''),project_description=value.get(
-							'description',''),project_status=value.get('status',''))
-				elif value.get('duration_in_minutes')
-					update
+		# print(project_ids,"kliojiwk-[rgepmkgk-,o")
+		print(worksnaps_summary.get("manager_report"),"worksnaps_summary")
+		if worksnaps_summary.get("manager_report"):
+			print(user_id,"user id")
+			for i,value in enumerate(worksnaps_summary.get("manager_report")):
+				if to_date == value.get('date',0):
+					UsersSummaryReport.objects.create(
+						user_name=value.get('user_name',''),user_id=value.get(
+							'user_id',''),date=value.get('date',''),duration=value.get(
+							'duration_in_minutes',''),project_name=value.get(
+							'project_name',''))
 
 	return JsonResponse({"Refresh":"Success"})
