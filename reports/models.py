@@ -24,10 +24,17 @@ class UsersList(models.Model):
 class UsersSummaryReport(models.Model):
 	user_name = models.CharField(max_length=100)
 	user_id = models.CharField(max_length=10)
-	date = models.CharField(max_length=25)
+	date = models.DateField()
 	duration = models.CharField(max_length=25)
 	project_name = models.CharField(max_length=200)
 
 	def __str__(self):
 		return "%s,%s"%(self.date,self.user_name)
 
+class HolidayList(models.Model):
+	holiday_date = models.DateField()
+	day = models.CharField(max_length=20)
+	holiday_description = models.TextField(null=True)
+
+	def __str__(self):
+		return "%s"%(self.holiday_date)
