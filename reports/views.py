@@ -2,10 +2,11 @@ import requests
 import base64
 from datetime import datetime,timedelta
 
+from rest_framework.decorators import api_view
 from django.shortcuts import render
 from django.http.response import JsonResponse
 
-from reports.models import ProjectsList,UsersList,UsersSummaryReport
+from reports.models import ProjectsList,UsersList,UsersSummaryReport,HolidayList
 # Create your views here.
 
 def get_data(url):
@@ -109,4 +110,15 @@ def create_users_summary(request):
 								'project_name',''))
 		from_date = from_date + timedelta(days = 1)
 
+	return JsonResponse({"Refresh":"Success"})
+
+@api_view(['POST'])
+def add_holiday_list(request):
+	if request.method == 'POST':
+		print(request.data,"printinf the date")
+		holiday_date = request.data.get("date_h",'')
+		holiday_description = request.data.get("holiday_description",'')
+		day = request.data.get("day",'')
+		HolidayList.objects.create(
+			holiday_date=holiday_date,holiday_description=holiday_description,day=day)
 	return JsonResponse({"Refresh":"Success"})
