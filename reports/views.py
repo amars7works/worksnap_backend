@@ -1,10 +1,12 @@
 import requests
 import base64
-from datetime import datetime,timedelta
+from datetime import datetime,timedelta,date
+from calendar import monthrange
 
 from rest_framework.decorators import api_view
 from django.shortcuts import render
 from django.http.response import JsonResponse
+from django.db.models import Q
 
 from reports.models import ProjectsList,UsersList,UsersSummaryReport,HolidayList
 # Create your views here.
@@ -45,7 +47,7 @@ def create_users(request):
 	users_qs = UsersList.objects.only('user_id')
 	users_ids = [single_user.user_id for single_user in users_qs]
 	worksnaps_users = get_data('users')
-	print(users_ids,"kliojiwk-[rgepmkgk-,o")
+	print(users_ids,"-----")
 	for i,value in enumerate(worksnaps_users.get("users")):
 			if value.get('id',0) not in users_ids:
 				print(value.get('id',0),"cooollllllll")
@@ -81,8 +83,8 @@ def convert_date_datetime_str(datetime_obj):
 	return date_str	
 
 def create_users_summary(request):
-	from_date = '2018-08-01'
-	to_date = '2018-08-30'
+	from_date = '2018-07-31'
+	to_date = '2018-08-1'
 	# summary_qs = UsersSummaryReport.objects.get(date=to_date)
 	# users_ids = [single_date.user_id for single_date in summary_qs]
 	users_qs = UsersList.objects.only('user_id')
@@ -95,7 +97,6 @@ def create_users_summary(request):
 		from_date_str = convert_date_datetime_str(from_date)
 		to_date_str = convert_date_datetime_str(to_date_datetime)
 		for user_id in users_ids:
-			print(user_id,"user id")
 			worksnaps_summary = get_summary(user_id,from_date_str,to_date_str)
 			print(worksnaps_summary,"user data")
 			print(worksnaps_summary.get("manager_report"),"worksnaps_summary")
@@ -122,3 +123,90 @@ def add_holiday_list(request):
 		HolidayList.objects.create(
 			holiday_date=holiday_date,holiday_description=holiday_description,day=day)
 	return JsonResponse({"Refresh":"Success"})
+
+
+def working_days():
+	monthrang = monthrange(2018,8)
+	if monthrang[0] == 6 and monthrang[1] >= 30:
+		no_of_working_days =  monthrang[1] - 6
+	elif monthrang[0] == 5 and monthrang[1] >= 31:
+		no_of_working_days =  monthrang[1] - 6
+	elif monthrang[0] == 0:
+		no_of_working_days =  monthrang[1] - 6
+	else:
+		no_of_working_days = monthrang[1] - 5
+	holidays = HolidayList.objects.filter(
+		Q(holiday_date__gte='2018-08-1') & Q(holiday_date__lte='2018-08-31'))
+	no_holidays = len(holidays)
+	no_of_working_days = no_of_working_days - no_holidays
+	return no_of_working_days,monthrang[0],monthrang[1]
+
+def create_datetime_obj(sunday_date_str):
+	sun_sat_dates_datetime = []
+	secons_sat = sunday_date_str[1]
+	sun_sat_dates_datetime.append(date(2018,8,secons_sat-1))
+	for single_date in sunday_date_str:
+		sun_sat_dates_datetime.append(date(2018,8,single_date))
+	return sun_sat_dates_datetime
+
+def get_this_month_holidays():
+	holiday_qs = HolidayList.objects.filter(
+		Q(holiday_date__gte='2018-08-1') & Q(
+			holiday_date__lte='2018-08-31'))
+	return [single_holiday.holiday_date for single_holiday in holiday_qs]
+
+def create_month_days(no_days):
+	whole_month_days = []
+	for sing_day in range(0,no_days):
+		whole_month_days.append(date(2018,8,sing_day+1))
+	return whole_month_days
+
+def get_leave_dates(whole_month_days,no_dates):
+	leave_dates = list(set(whole_month_days) - set(no_dates))
+	return leave_dates
+
+def users_summary(request):
+	user_names = ["Rajender Reddy Garlapally","Vikash Babu Bendalam","Ananya Dodda",
+	"Mohan Krishna Y","Pavan Chand","Vignan Akoju","Venkatesh Marreboina",
+	"Mounika NagaHarish","Narendra Babu Ballilpalli","Ramya Ketha",
+	"Vinod Kumar Kurra","Mounika Bandaru","Naveen Kumar Katta","Mohiuddin Mohammed",
+	"Dileep Kumar Kommineni","Uday Kumar","kandukuri chary","Mani Sankar Nambaru",
+	"Mahesh Gorage","Atul Kumar","suresh kanchumati"]
+	data2 = {}
+	for user_name in user_names:
+		user_summary_qs = UsersSummaryReport.objects.filter(
+			Q(date__gte='2018-08-1') & Q(date__lte='2018-08-31'),user_name=user_name)
+		# print(user_summary_qs,"user summary list")
+		total_duration = []
+		no_dates = []
+		for single_date in user_summary_qs:
+			time_done = single_date.duration
+			total_duration.append(time_done)
+			no_dates.append(single_date.date)
+		no_working_days,month_start_day,days_in_month = working_days()
+		sunday_start = 7-month_start_day
+		list_hanig_sundays = []
+		while sunday_start <= 31:
+			list_hanig_sundays.append(sunday_start)
+			sunday_start = sunday_start + 7
+		list_sun_sat = create_datetime_obj(list_hanig_sundays)
+		list_holidays = get_this_month_holidays()
+		if list_holidays not in list_sun_sat:
+			list_sun_sat.extend(list_holidays)
+		month_holidays = list(set(list_sun_sat))
+		whole_month_days = create_month_days(days_in_month)
+		no_dates_holidays = []
+		no_dates_holidays.extend(month_holidays)
+		no_dates_holidays.extend(no_dates)
+		leave_dates = get_leave_dates(whole_month_days,no_dates_holidays)
+		data = {
+		'Name': user_name,
+		'No of leaves' :  len(leave_dates),
+		'Leave Dates' : leave_dates,
+		'No of working days in August': no_working_days,
+		'No of days worked': len(set(no_dates)),
+		'For Month':'August',
+		}
+		data2[user_name] = data
+
+	return JsonResponse(data2)

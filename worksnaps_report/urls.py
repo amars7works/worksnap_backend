@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^refesh_projects/',reports_views.create_project,name='refresh the projects'),
     url(r'^refesh_users/',reports_views.create_users,name='refresh the users'),
     url(r'^users_summary/',reports_views.create_users_summary,name='users summary reports'),
-    url(r'^add_holiday/',reports_views.add_holiday_list,name='add holiday')
+    url(r'^add_holiday/',reports_views.add_holiday_list,name='add holiday'),
+    url(r'^user_report/',reports_views.users_summary,name='user report')
 
 ]
