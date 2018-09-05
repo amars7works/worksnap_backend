@@ -44,35 +44,43 @@ def get_summary(user_id,from_date,to_date):
 	return request_data_json
 
 def create_users(request):
-	users_qs = UsersList.objects.only('user_id')
-	users_ids = [single_user.user_id for single_user in users_qs]
-	worksnaps_users = get_data('users')
-	print(users_ids,"-----")
-	for i,value in enumerate(worksnaps_users.get("users")):
-			if value.get('id',0) not in users_ids:
-				print(value.get('id',0),"cooollllllll")
-				UsersList.objects.create(
-					user_id=value.get('id',''),user_email=value.get(
-					'email',''),user_first_name=value.get(
-					'first_name',''),user_last_name=value.get(
-					'last_name',''),user_login_as=value.get('login',''))
+	user = request.user
+	if user.is_superuser:
+		users_qs = UsersList.objects.only('user_id')
+		users_ids = [single_user.user_id for single_user in users_qs]
+		worksnaps_users = get_data('users')
+		print(users_ids,"-----")
+		for i,value in enumerate(worksnaps_users.get("users")):
+				if value.get('id',0) not in users_ids:
+					print(value.get('id',0),"cooollllllll")
+					UsersList.objects.create(
+						user_id=value.get('id',''),user_email=value.get(
+						'email',''),user_first_name=value.get(
+						'first_name',''),user_last_name=value.get(
+						'last_name',''),user_login_as=value.get('login',''))
 
-	return JsonResponse({"Refresh":"Success"})
+		return JsonResponse({"Refresh":"Success"})
+	else:
+		return JsonResponse({"Sorry dude you do not have permissions":"To access you nust be super user"})
 
 def create_project(request):
-	projects_qs = ProjectsList.objects.only('project_id')
-	project_ids = [single_project.project_id for single_project in projects_qs]
-	worksnaps_project = get_data('projects')
-	print(project_ids,"kliojiwk-[rgepmkgk-,o")
-	for i,value in enumerate(worksnaps_project.get("projects")):
-			if value.get('id',0) not in project_ids:
-				print(value.get('id',0),"cooollllllll")
-				ProjectsList.objects.create(
-					project_id=value.get('id',''),project_name=value.get(
-						'name',''),project_description=value.get(
-						'description',''),project_status=value.get('status',''))
+	user = request.user
+	if user.is_superuser:
+		projects_qs = ProjectsList.objects.only('project_id')
+		project_ids = [single_project.project_id for single_project in projects_qs]
+		worksnaps_project = get_data('projects')
+		print(project_ids,"kliojiwk-[rgepmkgk-,o")
+		for i,value in enumerate(worksnaps_project.get("projects")):
+				if value.get('id',0) not in project_ids:
+					print(value.get('id',0),"cooollllllll")
+					ProjectsList.objects.create(
+						project_id=value.get('id',''),project_name=value.get(
+							'name',''),project_description=value.get(
+							'description',''),project_status=value.get('status',''))
 
-	return JsonResponse({"Refresh":"Success"})
+		return JsonResponse({"Refresh":"Success"})
+	else:
+		return JsonResponse({"Sorry dude you do not have permissions":"To access you nust be super user"})
 
 def convert_date_str_datetime(date_str):
 	date_datetime = datetime.strptime(date_str, '%Y-%m-%d')
@@ -83,35 +91,39 @@ def convert_date_datetime_str(datetime_obj):
 	return date_str	
 
 def create_users_summary(request):
-	from_date = '2018-07-31'
-	to_date = '2018-08-1'
-	# summary_qs = UsersSummaryReport.objects.get(date=to_date)
-	# users_ids = [single_date.user_id for single_date in summary_qs]
-	users_qs = UsersList.objects.only('user_id')
-	users_ids = [single_user.user_id for single_user in users_qs]
-	current_date = convert_date_str_datetime(to_date)
-	from_date = convert_date_str_datetime(from_date)
-	while from_date < current_date:
-		print(from_date,"from_date")
-		to_date_datetime = from_date + timedelta(days = 1)
-		from_date_str = convert_date_datetime_str(from_date)
-		to_date_str = convert_date_datetime_str(to_date_datetime)
-		for user_id in users_ids:
-			worksnaps_summary = get_summary(user_id,from_date_str,to_date_str)
-			print(worksnaps_summary,"user data")
-			print(worksnaps_summary.get("manager_report"),"worksnaps_summary")
-			if worksnaps_summary.get("manager_report"):
-				print("Entered in to the first loop")
-				for i,value in enumerate(worksnaps_summary.get("manager_report")):
-					if to_date_str == value.get('date',0):
-						UsersSummaryReport.objects.create(
-							user_name=value.get('user_name',''),user_id=value.get(
-								'user_id',''),date=value.get('date',''),duration=value.get(
-								'duration_in_minutes',''),project_name=value.get(
-								'project_name',''))
-		from_date = from_date + timedelta(days = 1)
+	user = request.user
+	if user.is_superuser:
+		from_date = '2018-07-31'
+		to_date = '2018-08-1'
+		# summary_qs = UsersSummaryReport.objects.get(date=to_date)
+		# users_ids = [single_date.user_id for single_date in summary_qs]
+		users_qs = UsersList.objects.only('user_id')
+		users_ids = [single_user.user_id for single_user in users_qs]
+		current_date = convert_date_str_datetime(to_date)
+		from_date = convert_date_str_datetime(from_date)
+		while from_date < current_date:
+			print(from_date,"from_date")
+			to_date_datetime = from_date + timedelta(days = 1)
+			from_date_str = convert_date_datetime_str(from_date)
+			to_date_str = convert_date_datetime_str(to_date_datetime)
+			for user_id in users_ids:
+				worksnaps_summary = get_summary(user_id,from_date_str,to_date_str)
+				print(worksnaps_summary,"user data")
+				print(worksnaps_summary.get("manager_report"),"worksnaps_summary")
+				if worksnaps_summary.get("manager_report"):
+					print("Entered in to the first loop")
+					for i,value in enumerate(worksnaps_summary.get("manager_report")):
+						if to_date_str == value.get('date',0):
+							UsersSummaryReport.objects.create(
+								user_name=value.get('user_name',''),user_id=value.get(
+									'user_id',''),date=value.get('date',''),duration=value.get(
+									'duration_in_minutes',''),project_name=value.get(
+									'project_name',''))
+			from_date = from_date + timedelta(days = 1)
 
-	return JsonResponse({"Refresh":"Success"})
+		return JsonResponse({"Refresh":"Success"})
+	else:
+		return JsonResponse({"Sorry dude you do not have permissions":"To access you nust be super user"})
 
 @api_view(['POST'])
 def add_holiday_list(request):
@@ -179,71 +191,76 @@ def time_worked_on_weeend_days(user_summary_qs,worked_weekend_days,total_duratio
 	return sum(extra_time_worked)
 
 def users_summary(request):
-	user_names = ["Rajender Reddy Garlapally","Vikash Babu Bendalam","Ananya Dodda",
-	"Mohan Krishna Y","Pavan Chand","Vignan Akoju","Venkatesh Marreboina",
-	"Mounika NagaHarish","Narendra Babu Ballilpalli","Ramya Ketha",'Swapna Bodduluri',
-	"Vinod Kumar Kurra","Mounika Bandaru","Naveen Kumar Katta","Mohiuddin Mohammed",
-	"Dileep Kumar Kommineni","Uday Kumar","kandukuri chary","Mani Sankar Nambaru",
-	"Mahesh Gorage","Atul Kumar","suresh kanchumati"]
-	data2 = {}
-	for user_name in user_names:
-		user_summary_qs = UsersSummaryReport.objects.filter(
-			Q(date__gte='2018-08-1') & Q(date__lte='2018-08-31'),user_name=user_name)
-		# print(user_summary_qs,"user summary list")
-		total_duration = []
-		no_dates = []
-		for single_date in user_summary_qs:
-			time_done = single_date.duration
-			total_duration.append(int(time_done))
-			no_dates.append(single_date.date)
-		
-		no_working_days,month_start_day,days_in_month = working_days()
-		sunday_start = 7-month_start_day
-		list_hanig_sundays = []
-		
-		while sunday_start <= 31:
-			list_hanig_sundays.append(sunday_start)
-			sunday_start = sunday_start + 7
-		
-		list_sun_sat = create_datetime_obj(list_hanig_sundays)
-		list_holidays = get_this_month_holidays()
-		
-		if list_holidays not in list_sun_sat:
-			list_sun_sat.extend(list_holidays)
-		
-		month_holidays = list(set(list_sun_sat))
-		whole_month_days = create_month_days(days_in_month)
-		
-		no_dates_holidays = []
-		no_dates_holidays.extend(month_holidays)
-		no_dates_holidays.extend(no_dates)
-		
-		leave_dates = get_leave_dates(whole_month_days,no_dates_holidays)
-		user_worked_as_per_working_days = list(set(no_dates)-set(month_holidays))
-		
-		worked_weekend_days = worked_on_weekenddays(user_worked_as_per_working_days,no_dates)
-		if worked_weekend_days:
-			worked_on_weekend_days_holiday = "Yes"
-			extra_time_worked = time_worked_on_weeend_days(
-				user_summary_qs,worked_weekend_days,total_duration)
-		else:
-			worked_on_weekend_days_holiday = "No"
-			extra_time_worked = 0
-		total_time_to_work = (no_working_days-len(leave_dates)) * 480
-		total_time_worked = sum(total_duration)
-		data = {
-		'Name': user_name,
-		'No of leaves' :  len(leave_dates),
-		'Leave Dates' : leave_dates,
-		'No of working days in August': no_working_days,
-		'No of days worked': len(set(user_worked_as_per_working_days)),
-		'For Month':'August',
-		'Worked on weekend days or holidays':worked_on_weekend_days_holiday,
-		'Dates Worked on weekend days':worked_weekend_days,
-		'Time Worked on weekend days':extra_time_worked,
-		"Total time to work":total_time_to_work,
-		"Total time worked":total_time_worked,
-		}
-		data2[user_name] = data
+	user = request.user
+	print(user,"user")
+	if user.is_superuser: 
+		user_names = ["Rajender Reddy Garlapally","Vikash Babu Bendalam","Ananya Dodda",
+		"Mohan Krishna Y","Pavan Chand","Vignan Akoju","Venkatesh Marreboina",
+		"Mounika NagaHarish","Narendra Babu Ballilpalli","Ramya Ketha",'Swapna Bodduluri',
+		"Vinod Kumar Kurra","Mounika Bandaru","Naveen Kumar Katta","Mohiuddin Mohammed",
+		"Dileep Kumar Kommineni","Uday Kumar","kandukuri chary","Mani Sankar Nambaru",
+		"Mahesh Gorage","Atul Kumar","suresh kanchumati"]
+		data2 = {}	
+		for user_name in user_names:
+			user_summary_qs = UsersSummaryReport.objects.filter(
+				Q(date__gte='2018-08-1') & Q(date__lte='2018-08-31'),user_name=user_name)
+			# print(user_summary_qs,"user summary list")
+			total_duration = []
+			no_dates = []
+			for single_date in user_summary_qs:
+				time_done = single_date.duration
+				total_duration.append(int(time_done))
+				no_dates.append(single_date.date)
+			
+			no_working_days,month_start_day,days_in_month = working_days()
+			sunday_start = 7-month_start_day
+			list_hanig_sundays = []
+			
+			while sunday_start <= 31:
+				list_hanig_sundays.append(sunday_start)
+				sunday_start = sunday_start + 7
+			
+			list_sun_sat = create_datetime_obj(list_hanig_sundays)
+			list_holidays = get_this_month_holidays()
+			
+			if list_holidays not in list_sun_sat:
+				list_sun_sat.extend(list_holidays)
+			
+			month_holidays = list(set(list_sun_sat))
+			whole_month_days = create_month_days(days_in_month)
+			
+			no_dates_holidays = []
+			no_dates_holidays.extend(month_holidays)
+			no_dates_holidays.extend(no_dates)
+			
+			leave_dates = get_leave_dates(whole_month_days,no_dates_holidays)
+			user_worked_as_per_working_days = list(set(no_dates)-set(month_holidays))
+			
+			worked_weekend_days = worked_on_weekenddays(user_worked_as_per_working_days,no_dates)
+			if worked_weekend_days:
+				worked_on_weekend_days_holiday = "Yes"
+				extra_time_worked = time_worked_on_weeend_days(
+					user_summary_qs,worked_weekend_days,total_duration)
+			else:
+				worked_on_weekend_days_holiday = "No"
+				extra_time_worked = 0
+			total_time_to_work = (no_working_days-len(leave_dates)) * 480
+			total_time_worked = sum(total_duration)
+			data = {
+			'Name': user_name,
+			'No of leaves' :  len(leave_dates),
+			'Leave Dates' : leave_dates,
+			'No of working days in August': no_working_days,
+			'No of days worked': len(set(user_worked_as_per_working_days)),
+			'For Month':'August',
+			'Worked on weekend days or holidays':worked_on_weekend_days_holiday,
+			'Dates Worked on weekend days':worked_weekend_days,
+			'Time Worked on weekend days':extra_time_worked,
+			"Total time to work":total_time_to_work,
+			"Total time worked":total_time_worked,
+			}
+			data2[user_name] = data
 
-	return JsonResponse(data2)
+		return JsonResponse(data2)
+	else:
+		return JsonResponse({"Sorry dude you do not have permissions":"To access you nust be super user"})
