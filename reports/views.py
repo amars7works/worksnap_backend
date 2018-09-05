@@ -165,10 +165,23 @@ def get_leave_dates(whole_month_days,no_dates):
 	leave_dates = list(set(whole_month_days) - set(no_dates))
 	return leave_dates
 
+def worked_on_weekenddays(user_worked_as_per_working_days,no_dates):
+		worked_weekend_days = list(set(no_dates)-set(user_worked_as_per_working_days))
+		return worked_weekend_days
+
+def time_worked_on_weeend_days(user_summary_qs,worked_weekend_days,total_duration):
+	extra_time_worked = []
+	for single_date in user_summary_qs:
+		for i,sing_day in enumerate(worked_weekend_days):
+			if sing_day == single_date.date:
+				extra_time = single_date.duration
+				extra_time_worked.append(int(extra_time))
+	return sum(extra_time_worked)
+
 def users_summary(request):
 	user_names = ["Rajender Reddy Garlapally","Vikash Babu Bendalam","Ananya Dodda",
 	"Mohan Krishna Y","Pavan Chand","Vignan Akoju","Venkatesh Marreboina",
-	"Mounika NagaHarish","Narendra Babu Ballilpalli","Ramya Ketha",
+	"Mounika NagaHarish","Narendra Babu Ballilpalli","Ramya Ketha",'Swapna Bodduluri',
 	"Vinod Kumar Kurra","Mounika Bandaru","Naveen Kumar Katta","Mohiuddin Mohammed",
 	"Dileep Kumar Kommineni","Uday Kumar","kandukuri chary","Mani Sankar Nambaru",
 	"Mahesh Gorage","Atul Kumar","suresh kanchumati"]
@@ -181,31 +194,55 @@ def users_summary(request):
 		no_dates = []
 		for single_date in user_summary_qs:
 			time_done = single_date.duration
-			total_duration.append(time_done)
+			total_duration.append(int(time_done))
 			no_dates.append(single_date.date)
+		
 		no_working_days,month_start_day,days_in_month = working_days()
 		sunday_start = 7-month_start_day
 		list_hanig_sundays = []
+		
 		while sunday_start <= 31:
 			list_hanig_sundays.append(sunday_start)
 			sunday_start = sunday_start + 7
+		
 		list_sun_sat = create_datetime_obj(list_hanig_sundays)
 		list_holidays = get_this_month_holidays()
+		
 		if list_holidays not in list_sun_sat:
 			list_sun_sat.extend(list_holidays)
+		
 		month_holidays = list(set(list_sun_sat))
 		whole_month_days = create_month_days(days_in_month)
+		
 		no_dates_holidays = []
 		no_dates_holidays.extend(month_holidays)
 		no_dates_holidays.extend(no_dates)
+		
 		leave_dates = get_leave_dates(whole_month_days,no_dates_holidays)
+		user_worked_as_per_working_days = list(set(no_dates)-set(month_holidays))
+		
+		worked_weekend_days = worked_on_weekenddays(user_worked_as_per_working_days,no_dates)
+		if worked_weekend_days:
+			worked_on_weekend_days_holiday = "Yes"
+			extra_time_worked = time_worked_on_weeend_days(
+				user_summary_qs,worked_weekend_days,total_duration)
+		else:
+			worked_on_weekend_days_holiday = "No"
+			extra_time_worked = 0
+		total_time_to_work = (no_working_days-len(leave_dates)) * 480
+		total_time_worked = sum(total_duration)
 		data = {
 		'Name': user_name,
 		'No of leaves' :  len(leave_dates),
 		'Leave Dates' : leave_dates,
 		'No of working days in August': no_working_days,
-		'No of days worked': len(set(no_dates)),
+		'No of days worked': len(set(user_worked_as_per_working_days)),
 		'For Month':'August',
+		'Worked on weekend days or holidays':worked_on_weekend_days_holiday,
+		'Dates Worked on weekend days':worked_weekend_days,
+		'Time Worked on weekend days':extra_time_worked,
+		"Total time to work":total_time_to_work,
+		"Total time worked":total_time_worked,
 		}
 		data2[user_name] = data
 
