@@ -7,11 +7,23 @@ from rest_framework.decorators import api_view
 from django.shortcuts import render
 from django.http.response import JsonResponse
 from django.db.models import Q
+from django.shortcuts import render, HttpResponse
 
 from reports.models import ProjectsList,UsersList,UsersSummaryReport,HolidayList
 # Create your views here.
 
+def home(request):
+	return render(request,'home.html')
+
+def worksnaps_report_html(request):
+	return render(request,'worksnaps_report.html')
+
 def get_data(url):
+	'''
+		This function will work like get data from worksnaps
+		Args: API end point
+		Return: JSON data for given end point
+	'''
 	token = '23Mh2bkhQkUoqlU0KDfpVaYg9wXXsSgHr7YKdSm8'
 	project_url = 'https://api.worksnaps.com/api/{}.json'.format(url)
 	client_token = '{}:{}'.format(token,"ignored").encode()
@@ -27,6 +39,11 @@ def get_data(url):
 	return request_data_json
 
 def get_summary(user_id,from_date,to_date):
+	'''
+		This function will work like get the user data from worksnaps
+		Args: Worksnaps user id, From date and To date
+		Return: JSON data for given user id
+	'''
 	user_ids = user_id
 	name='manager_report'
 	token = '23Mh2bkhQkUoqlU0KDfpVaYg9wXXsSgHr7YKdSm8'
@@ -44,6 +61,9 @@ def get_summary(user_id,from_date,to_date):
 	return request_data_json
 
 def create_users(request):
+	'''
+		This function creates the list of user in DB who are available in Worksnaps
+	'''
 	user = request.user
 	if user.is_superuser:
 		users_qs = UsersList.objects.only('user_id')
@@ -61,18 +81,20 @@ def create_users(request):
 
 		return JsonResponse({"Refresh":"Success"})
 	else:
-		return JsonResponse({"Sorry dude you do not have permissions":"To access you nust be super user"})
+		return JsonResponse(
+			{"Sorry dude you do not have permissions":"To access you nust be super user"})
 
 def create_project(request):
+	'''
+		This function creates the list of projects in DB who are available in Worksnaps
+	'''
 	user = request.user
 	if user.is_superuser:
 		projects_qs = ProjectsList.objects.only('project_id')
 		project_ids = [single_project.project_id for single_project in projects_qs]
 		worksnaps_project = get_data('projects')
-		print(project_ids,"kliojiwk-[rgepmkgk-,o")
 		for i,value in enumerate(worksnaps_project.get("projects")):
 				if value.get('id',0) not in project_ids:
-					print(value.get('id',0),"cooollllllll")
 					ProjectsList.objects.create(
 						project_id=value.get('id',''),project_name=value.get(
 							'name',''),project_description=value.get(
@@ -80,17 +102,31 @@ def create_project(request):
 
 		return JsonResponse({"Refresh":"Success"})
 	else:
-		return JsonResponse({"Sorry dude you do not have permissions":"To access you nust be super user"})
+		return JsonResponse(
+			{"Sorry dude you do not have permissions":"To access you nust be super user"})
 
 def convert_date_str_datetime(date_str):
+	'''
+		Convert the string date to date time object
+		Args: date(in string)
+		Return: date(date time object)
+	''' 
 	date_datetime = datetime.strptime(date_str, '%Y-%m-%d')
 	return date_datetime
 
 def convert_date_datetime_str(datetime_obj):
+	'''
+		Convert the date object to string date
+		Args: date(date time object)
+		Return: date(in string)
+	''' 
 	date_str = datetime.strftime(datetime_obj, '%Y-%m-%d')
 	return date_str	
 
 def create_users_summary(request):
+	'''
+		This function will store the all user Worksnaps data for given dates
+	'''
 	user = request.user
 	if user.is_superuser:
 		from_date = '2018-07-31'
@@ -123,10 +159,14 @@ def create_users_summary(request):
 
 		return JsonResponse({"Refresh":"Success"})
 	else:
-		return JsonResponse({"Sorry dude you do not have permissions":"To access you nust be super user"})
+		return JsonResponse(
+			{"Sorry dude you do not have permissions":"To access you nust be super user"})
 
 @api_view(['POST'])
 def add_holiday_list(request):
+	'''
+		Able to add the custom holidays from frontend
+	'''
 	if request.method == 'POST':
 		print(request.data,"printinf the date")
 		holiday_date = request.data.get("date_h",'')
@@ -138,6 +178,9 @@ def add_holiday_list(request):
 
 
 def working_days():
+	'''
+		Calculates the no of working days in a given month
+	'''
 	monthrang = monthrange(2018,8)
 	if monthrang[0] == 6 and monthrang[1] >= 30:
 		no_of_working_days =  monthrang[1] - 6
@@ -154,6 +197,9 @@ def working_days():
 	return no_of_working_days,monthrang[0],monthrang[1]
 
 def create_datetime_obj(sunday_date_str):
+	'''
+		create date objets for give month
+	'''
 	sun_sat_dates_datetime = []
 	secons_sat = sunday_date_str[1]
 	sun_sat_dates_datetime.append(date(2018,8,secons_sat-1))
@@ -162,26 +208,49 @@ def create_datetime_obj(sunday_date_str):
 	return sun_sat_dates_datetime
 
 def get_this_month_holidays():
+	'''
+		Get the holidays for the given month
+	'''
 	holiday_qs = HolidayList.objects.filter(
 		Q(holiday_date__gte='2018-08-1') & Q(
 			holiday_date__lte='2018-08-31'))
 	return [single_holiday.holiday_date for single_holiday in holiday_qs]
 
 def create_month_days(no_days):
+	'''
+		Create a list of no of days
+		Args: number of days
+		Return: list of number of days
+	'''
 	whole_month_days = []
 	for sing_day in range(0,no_days):
 		whole_month_days.append(date(2018,8,sing_day+1))
 	return whole_month_days
 
 def get_leave_dates(whole_month_days,no_dates):
+	'''
+		Get user leave dates
+		Args:Whole month days(date objects),no of days user worked(date object)
+		Return:No of leave dates
+	'''
 	leave_dates = list(set(whole_month_days) - set(no_dates))
 	return leave_dates
 
 def worked_on_weekenddays(user_worked_as_per_working_days,no_dates):
-		worked_weekend_days = list(set(no_dates)-set(user_worked_as_per_working_days))
-		return worked_weekend_days
+	'''
+		Get the user worked on weekend days with dates
+		Args:user worked with out weekend days,User worked dates
+		Return: worked weekend days
+	'''
+	worked_weekend_days = list(set(no_dates)-set(user_worked_as_per_working_days))
+	return worked_weekend_days
 
 def time_worked_on_weeend_days(user_summary_qs,worked_weekend_days,total_duration):
+	'''
+		Calculate the time worked on weekend days worked
+		Args:month query set,worked weekend days,total time worked
+		Return:Time worked on weekend days
+	'''
 	extra_time_worked = []
 	for single_date in user_summary_qs:
 		for i,sing_day in enumerate(worked_weekend_days):
@@ -191,8 +260,10 @@ def time_worked_on_weeend_days(user_summary_qs,worked_weekend_days,total_duratio
 	return sum(extra_time_worked)
 
 def users_summary(request):
+	'''
+		Generate the user month report
+	'''
 	user = request.user
-	print(user,"user")
 	if user.is_superuser: 
 		user_names = ["Rajender Reddy Garlapally","Vikash Babu Bendalam","Ananya Dodda",
 		"Mohan Krishna Y","Pavan Chand","Vignan Akoju","Venkatesh Marreboina",
@@ -246,6 +317,7 @@ def users_summary(request):
 				extra_time_worked = 0
 			total_time_to_work = (no_working_days-len(leave_dates)) * 480
 			total_time_worked = sum(total_duration)
+			
 			data = {
 			'Name': user_name,
 			'No of leaves' :  len(leave_dates),
@@ -263,4 +335,5 @@ def users_summary(request):
 
 		return JsonResponse(data2)
 	else:
-		return JsonResponse({"Sorry dude you do not have permissions":"To access you nust be super user"})
+		return JsonResponse(
+			{"Sorry dude you do not have permissions":"To access you nust be super user"})
