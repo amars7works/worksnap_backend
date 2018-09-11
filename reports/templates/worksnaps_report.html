@@ -1,9 +1,40 @@
+{%load static%}
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Worksnaps Report</title>
+	<title>WorkSnaps</title>
+	<link rel="stylesheet" type="text/css" href="{%static 'home.css'%}">
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+
 </head>
 <body>
+	<div class="box">
+		<h2>Work Snap's</h2>
+		<form>
+			<div class="inputBox">
+				<input type="text" name="" required="">
+				<label>Select Employee</label>
+			</div>
+			
+			
+    
+                <div class='input-group date' id='datetimepicker1'>
+                    <input type='text' class="form-control" />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            
+       
+			<input type="submit" name="Submit">
+		</form>
+	</div>
+<script type="text/javascript">
+      $(function () {
+            $('#datetimepicker1').datetimepicker();
+         });
+</script>
 
 </body>
 </html>

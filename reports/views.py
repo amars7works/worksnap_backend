@@ -18,6 +18,8 @@ def home(request):
 
 def worksnaps_report_html(request):
 	return render(request,'worksnaps_report.html')
+def daily_report_html(request):
+	return render(request,'dailyreport.html')
 
 def get_data(url):
 	'''
