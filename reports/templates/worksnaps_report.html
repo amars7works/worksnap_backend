@@ -4,37 +4,101 @@
 <head>
 	<title>WorkSnaps</title>
 	<link rel="stylesheet" type="text/css" href="{%static 'home.css'%}">
-	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="{%static 'datedropper.css' %} ">
+	<script src="{%static 'js/jquery-1.10.2.min.js'%} "></script>
+    <script src="{%static 'js/datedropper.js'%} "></script>
 
 
 </head>
 <body>
-	<div class="box">
+<div class="box">
 		<h2>Work Snap's</h2>
-		<form>
-			<div class="inputBox">
-				<input type="text" name="" required="">
-				<label>Select Employee</label>
-			</div>
-			
-			
-    
-                <div class='input-group date' id='datetimepicker1'>
-                    <input type='text' class="form-control" />
-                    <span class="input-group-addon">
-                        <span class="glyphicon glyphicon-calendar"></span>
-                    </span>
-                </div>
-            
-       
-			<input type="submit" name="Submit">
-		</form>
-	</div>
-<script type="text/javascript">
-      $(function () {
-            $('#datetimepicker1').datetimepicker();
-         });
-</script>
 
+
+	<div class="center">
+		<input type="checkbox" name="" >
+	</div>
+	<div class="inputBox1">
+		<select>
+			<option>All</option>
+			<option>Venkatesh</option>
+			<option>Vignan</option>
+			<option>Pavan Chand</option>
+			<option>Dileep</option>
+			<option>Narendra</option>
+		</select>
+	</div>
+	<div class="inputBox2">
+		<select>
+			<option>January</option>
+			<option>February</option>
+			<option>March</option>
+			<option>April</option>
+			<option>May</option>
+			<option>June</option>
+			<option>July</option>
+			<option>August</option>
+			<option>September</option>
+			<option>October</option>
+			<option>November</option>
+			<option>December</option>
+		</select>
+	</div>
+	<div>
+	<h2>Select Date Range</h2>
+	</div>
+	 <div class="text">
+	 	<div class="inputBox">
+			<input type="text" data-large-mode="true"  >
+			<!--data-large-mode="true" data-large-default="true"-->
+		</div>
+	 </div>
+	 <div class="text1">
+	 <div class="inputBox">
+		<input type="text" data-large-mode="true" >
+	 </div> 
+	 </div>
+
+	 <input type="submit" name="Submit">
+</div>        
+        
+        <script>
+            $('input[type="text"]').dateDropper(); 
+            $('input[type="text1"]').dateDropper();       
+        </script>
+            <script type="text/javascript">
+            	$(document).ready(function(){
+            		$('div[class="inputBox"]').hide();
+    				$("input[type='checkbox']").click(function(){
+        				$("div[class='inputBox']").toggle();
+        				$("div[class='inputBox2']").toggle();
+    });
+});</script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+			
