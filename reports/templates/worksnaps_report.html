@@ -12,10 +12,9 @@
 
 </head>
 <body>
-<div class="box">
-		<h2>Work Snap's</h2>
-
-
+<div class="box1">
+<form action="">
+		<div class="box_h1"><h1>Work Snap's</h1></div>
 	<div class="center">
 		<input type="checkbox" name="" >
 	</div>
@@ -45,22 +44,25 @@
 			<option>December</option>
 		</select>
 	</div>
-	<div>
-	<h2>Select Date Range</h2>
+	<div class="day">
+		<h6>Select Date Range</h6>
+	</div>
+	<div class="month">
+		<h6>Select Month</h6>
 	</div>
 	 <div class="text">
 	 	<div class="inputBox">
-			<input type="text" data-large-mode="true"  >
+			<input type="text" data-large-mode="true" name='From' >
 			<!--data-large-mode="true" data-large-default="true"-->
 		</div>
 	 </div>
 	 <div class="text1">
 	 <div class="inputBox">
-		<input type="text" data-large-mode="true" >
+		<input type="text" data-large-mode="true" name='To' >
 	 </div> 
 	 </div>
-
 	 <input type="submit" name="Submit">
+</form>
 </div>        
         
         <script>
@@ -70,9 +72,12 @@
             <script type="text/javascript">
             	$(document).ready(function(){
             		$('div[class="inputBox"]').hide();
+            		$('div[class="month"]').hide();
     				$("input[type='checkbox']").click(function(){
         				$("div[class='inputBox']").toggle();
         				$("div[class='inputBox2']").toggle();
+        				$('div[class="month"]').toggle();
+        				$('div[class="day"]').toggle();
     });
 });</script>
 </body>
