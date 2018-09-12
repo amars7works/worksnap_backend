@@ -1,3 +1,4 @@
+import time
 import requests
 import base64
 from datetime import datetime,timedelta,date
@@ -117,7 +118,7 @@ def convert_date_str_datetime(date_str):
 	date_datetime = datetime.strptime(date_str, '%Y-%m-%d')
 	return date_datetime
 
-def convert_date_datetime_str(datetime_obj):
+def convert_date_datetime_str(create_datetime_obj):
 	'''
 		Convert the date object to string date
 		Args: date(date time object)
@@ -362,57 +363,58 @@ def users_summary(from_date,to_date,year_month,user_name):
 		data2[user_name] = data
 
 	return data2,user_names
-def username_excel(sheet1,user_names):
+def username_excel(sheet1,user_names,cell_format):
 	row = 1
 	column = 0
-	for i,single_user in enumerate(user_names):
+	for i,single_user in enumerate(sorted(user_names)):
 		sheet1.write(row,column,single_user)
 		row = row + 1
 
-def headers_data(sheet1,headers):
+def headers_data(sheet1,headers,cell_format):
 	row = 0
 	column = 1
 	for i,single_header in enumerate(headers):
-		sheet1.write(row,column,single_header)
+		sheet1.write(row,column,single_header,cell_format)
 		column = column + 1
 
-def show_data(sheet1,user_names,headers,user_summary):
+def change_date_format(dates):
+	str_date = []
+	if dates:
+		for single_date in dates:
+			date_time = single_date.isoformat()
+			str_date.append(date_time)
+		return str_date
+	else:
+		return '-'
+
+def show_data(sheet1,user_names,headers,user_summary,cell_format):
 	row = 1
 	column = 0
-	for i,single_user in enumerate(user_names):
-		for key,user_data in user_summary.items():
-			if key == single_user:
-				sheet1.write(row,column,single_header)
-				column = column + 1
-			for userdata_key,user_value in user_data.items():
-				if userdata_key == 'No of working days in August':
-					sheet1.write(row,column,user_data.get(userdata_key,"-"))
-					column = column + 1
-				elif userdata_key == 'No of days worked':
-					sheet1.write(row,column,user_data.get(userdata_key,"-"))
-					column = column + 1
-				elif userdata_key == 'No of leaves':
-					sheet1.write(row,column,user_data.get(userdata_key,"-"))
-					column = column + 1
-				elif userdata_key == 'Leave Dates':
-					sheet1.write(row,column,user_data.get(userdata_key,"-"))
-					column = column + 1
-				elif userdata_key == 'Total time to work':
-					sheet1.write(row,column,user_data.get(userdata_key,"-"))
-					column = column + 1
-				elif userdata_key == 'Total time worked':
-					sheet1.write(row,column,user_data.get(userdata_key,"-"))
-					column = column + 1
-				elif userdata_key == 'Worked on weekend days or holidays':
-					sheet1.write(row,column,user_data.get(userdata_key,"-"))
-					column = column + 1
-				elif userdata_key == 'Time Worked on weekend days':
-					sheet1.write(row,column,user_data.get(userdata_key,"-"))
-					column = column + 1
-				elif userdata_key == 'Dates Worked on weekend days':
-					sheet1.write(row,column,user_data.get(userdata_key,"-"))
-					column = column + 1
-
+	row_data = 1
+	column_data = 1
+	for key, user_data in sorted(user_summary.items()):	
+		sheet1.write(row_data,column_data,user_data.get('No of working days in August',"-"),cell_format)
+		column_data = column_data + 1
+		sheet1.write(row_data,column_data,user_data.get('No of days worked',"-"),cell_format)
+		column_data = column_data + 1
+		sheet1.write(row_data,column_data,user_data.get('No of leaves',"-"),cell_format)
+		column_data = column_data + 1
+		leave_dates = change_date_format(user_data.get('Leave Dates',"-"))
+		sheet1.write(row_data,column_data,str(leave_dates),cell_format)
+		column_data = column_data + 1
+		sheet1.write(row_data,column_data,user_data.get('Total time to work',"-"),cell_format)
+		column_data = column_data + 1
+		sheet1.write(row_data,column_data,user_data.get('Total time worked',"-"),cell_format)
+		column_data = column_data + 1
+		sheet1.write(row_data,column_data,user_data.get('Worked on weekend days or holidays',"-"),cell_format)
+		column_data = column_data + 1
+		sheet1.write(row_data,column_data,user_data.get('Time Worked on weekend days',"-"),cell_format)
+		column_data = column_data + 1
+		weekend_days = change_date_format(user_data.get('Dates Worked on weekend days',"-"))
+		sheet1.write(row_data,column_data,str(weekend_days),cell_format)
+		column_data = column_data + 1
+		row_data = row_data + 1
+		column_data = 1
 
 def show_data_in_excel(request):
 	year_month = request.GET.get("month",0)
@@ -432,9 +434,16 @@ def show_data_in_excel(request):
 	'Time Worked on weekend days','Dates Worked on weekend days']
 	
 	sheet1 = book.add_worksheet('Aug-2018')
-	# username_excel(sheet1,user_names)
-	headers_data(sheet1,headers)
-	show_data(sheet1,user_names,headers,user_summary)
+	sheet1.freeze_panes(1, 1)
+	sheet1.set_column('A:A',25)
+	sheet1.set_row(0, 40)
+	sheet1.set_column(1, 9, 15)
+	cell_format = book.add_format()
+	cell_format.set_text_wrap()
+	cell_format.set_align('left')
+	username_excel(sheet1,user_names,cell_format)
+	headers_data(sheet1,headers,cell_format)
+	show_data(sheet1,user_names,headers,user_summary,cell_format)
 	book.close()
 
 	return response
