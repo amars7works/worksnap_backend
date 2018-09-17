@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>WorkSnap's</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="datedropper.css">
+	<script src="jquery-1.10.2.min.js"></script>
+    <script src="datedropper.js"></script>
+</head>
+<body>
+	<div class="center">
+		<input type="checkbox" name="" >
+	</div>
+	<div class="box">
+		<select>
+			<option>January</option>
+			<option>February</option>
+			<option>March</option>
+			<option>April</option>
+			<option>May</option>
+			<option>June</option>
+			<option>July</option>
+			<option>August</option>
+			<option>September</option>
+			<option>October</option>
+			<option>November</option>
+			<option>December</option>
+		</select>
+	</div>
+	 <div class="text">
+	 	<input type="text" data-large-mode="true" data-large-default="true">
+	 </div>
+	 <div class="text1">
+		<input type="text" data-large-mode="true" data-large-default="true">
+	 </div> 
+
+        
+        
+        <script>
+            $('input[type="text"]').dateDropper(); 
+            $('input[type="text1"]').dateDropper();       
+        </script>
+            <script type="text/javascript">
+            	$(document).ready(function(){
+            		$('input[type="text"]').hide();
+    				$("input[type='checkbox']").click(function(){
+        				$("input[type='text']").toggle();
+        				$("div[class='box']").toggle();
+    });
+});</script>
+</body>
+</html>

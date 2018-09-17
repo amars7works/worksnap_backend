@@ -38,3 +38,4 @@ class HolidayList(models.Model):
 
 	def __str__(self):
 		return "%s"%(self.holiday_date)
+
