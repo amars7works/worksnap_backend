@@ -192,6 +192,7 @@ def time_worked_on_weeend_days(user_summary_qs,worked_weekend_days,total_duratio
 
 def users_summary(request):
 	user = request.user
+	print(request.META.get('REMOTE_ADDR',),"print the user ip address")
 	print(user,"user")
 	if user.is_superuser: 
 		user_names = ["Rajender Reddy Garlapally","Vikash Babu Bendalam","Ananya Dodda",
