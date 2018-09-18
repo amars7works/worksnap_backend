@@ -39,3 +39,15 @@ class HolidayList(models.Model):
 	def __str__(self):
 		return "%s"%(self.holiday_date)
 
+class UserDailyReport(models.Model):
+	username = models.CharField(max_length=100)
+	cretaed_at = models.DateField()
+	what_was_done_this_day = models.TextField()
+	what_is_your_plan_for_the_next_day = models.TextField()
+	what_are_your_blockers = models.TextField()
+	do_you_have_enough_tasks_for_next_three_days = models.TextField()
+	if_you_get_stuck_are_you_still_able_to_work_on_something_else = models.TextField()
+
+	def __str__(self):
+		return "%s"%(self.username)
+ 

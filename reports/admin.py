@@ -1,5 +1,5 @@
 from django.contrib import admin
-from reports.models import ProjectsList,UsersList,UsersSummaryReport,HolidayList
+from reports.models import ProjectsList,UsersList,UsersSummaryReport,HolidayList,UserDailyReport
 # Register your models here.
 
 class ProjectsListAdmin(admin.ModelAdmin):
@@ -18,7 +18,12 @@ class HolidayListAdmin(admin.ModelAdmin):
 	list_display = ('holiday_date','day','holiday_description',)
 	search_fields = ('holiday_date',)
 
+class UserDailyReportAdmin(admin.ModelAdmin):
+	list_display = ('username','cretaed_at',)
+	search_fields = ('username','cretaed_at',)
+
 admin.site.register(ProjectsList,ProjectsListAdmin)
 admin.site.register(UsersList,UsersListAdmin)
 admin.site.register(HolidayList,HolidayListAdmin)
 admin.site.register(UsersSummaryReport,UsersSummaryReportAdmin)
+admin.site.register(UserDailyReport,UserDailyReportAdmin)

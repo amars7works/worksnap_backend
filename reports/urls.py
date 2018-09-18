@@ -10,4 +10,6 @@ urlpatterns = [
     url(r'^add_holiday/',views.add_holiday_list,name='add holiday'),
     url(r'^user_report/',views.show_data_in_excel,name='user report'),
     url(r'^daily_report/', views.daily_report_html,name='daily_report'),
+    url(r'^store_daily_report/', views.store_daily_report,
+    	name=' store daily report'),
 	]
