@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.shortcuts import render, HttpResponse,redirect
 from django.contrib.auth import authenticate, login ,logout
 from xlsxwriter.workbook import Workbook
-from reports.models import ProjectsList,UsersList,UsersSummaryReport,HolidayList
+from reports.models import ProjectsList,UsersList,UsersSummaryReport,HolidayList,UserDailyReport
 # Create your views here.
 
 # @api_view(['POST'])
@@ -293,7 +293,7 @@ def get_user_names():
 		last_name = single_user.user_last_name
 		username = first_name+' '+last_name
 		user_name.append(username)
-	return user_name
+	return sorted(user_name)
 
 def create_from_to_date(year,month):
 	no_working_days,day_started,no_days_month = working_days(year,month)
@@ -321,7 +321,8 @@ def users_summary(from_date,to_date,year,month,user_name):
 		# "Mahesh Gorage","Atul Kumar","suresh kanchumati"]
 		user_names = get_user_names()
 	else:
-		user_names = list(user_name)
+		user_names = []
+		user_names.append(user_name)
 	data2 = {}	
 	for user_name in user_names:
 		user_summary_qs = UsersSummaryReport.objects.filter(
@@ -444,7 +445,10 @@ def show_data_in_excel(request):
 	from_date = request.GET.get("from_date",0)
 	to_date = request.GET.get("to_date",0)
 	user_name = request.GET.get("user_name",0)
-	user_summary,user_names = users_summary(from_date,to_date,year,month,user_name)
+	if user_name == "all":
+		user_summary,user_names = users_summary(from_date,to_date,year,month,user_name)
+	else:
+		user_summary,user_names = users_summary(from_date,to_date,year,month,user_name)
 	# print(user_summary,"Data")
 
 	# filename = '{}_raw_data_{}_to_{}.xlsx'.format(request.user.username,
@@ -471,3 +475,21 @@ def show_data_in_excel(request):
 
 	return response
 
+def store_daily_report(request):
+	if request.method == "POST":
+		userame = request.GET.get("username","Not filled anything")
+		created_at = request.GET.get("created_at","Not filled anything")
+		q1 = request.GET.get("q1","Not filled anything")
+		q2 = request.GET.get("q2","Not filled anything")
+		q3 = request.GET.get("q3","Not filled anything")
+		q4 = request.GET.get("q4","Not filled anything")
+		q5 = request.GET.get("q5","Not filled anything")
+		UserDailyReport.objects.create(
+			username=userame,created_at=created_at,what_was_done_this_day=q1,
+			what_is_your_plan_for_the_next_day = q2,
+			what_are_your_blockers = q3,
+			do_you_have_enough_tasks_for_next_three_days = q4,
+			if_you_get_stuck_are_you_still_able_to_work_on_something_else = q5)
+		return JsonResponse({"Submitted":"success"})
+	else:
+		return JsonResponse({"Submitted":"failed"})
