@@ -5,35 +5,95 @@
 	<title>WorkSnaps</title>
 	<link rel="stylesheet" type="text/css" href="{%static 'home.css'%}">
 	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="{%static 'datedropper.css' %} ">
+	<script src="{%static 'js/jquery-1.10.2.min.js'%} "></script>
+    <script src="{%static 'js/datedropper.js'%} "></script>
 
 
 </head>
 <body>
+
+<div class="container2 borderXwidth">
+  		<a href="{%url 'home'%}" alt="Home">Home</a>
+</div>
+<div class="pagination borderXwidth">
+  		<a href="{%url 'login'%}" alt="Employer Login">Employer Login</a>
+  	</div>
 	<div class="box">
 		<h2>Daily Report</h2>
-<form>
+<form action="" autocomplete="off">
+	
 	<div class="inputBox">
-		<input type="text" name="" required="">
+		<select name="username">
+			<option value="">Select Your Name</option>
+        	{%for user in all_users %}
+			<option value='{{user}}'>{{user}}</option>
+			{%endfor%}
+		</select>
+	</div>
+	<div class="cal">
+		<input type="text1" data-large-mode="true"  data-format="Y-n-j" name='created_at' value=""  />
+	</div>
+	<div class="inputBox">		
+    	<textarea id="todolist" class="todolist" name="q1" required></textarea>
 		<label>What was done this day?</label>
 	</div>
-	<div class="inputBox">
-		<input type="text" name="" required="">
-		<label>What is your plan for the next day?</label>
+	<div class="inputBox">		
+    	<textarea id="todolist1" class="todolist1" name="q2" required></textarea>
+		<label>What is your plan for next day?</label>
 	</div>
 	<div class="inputBox">
-		<input type="text" name="" required="" placeholder="No">
+		<input type="text" name="q3" required placeholder="No">
 		<label> What are your blockers?</label>
 	</div>
 	<div class="inputBox">
-		<input type="text" name="" required="" placeholder="Yes">
+		<input type="text" name="q4" required placeholder="Yes">
 		<label>Do you have enough tasks to keep you busy for the next three days?</label>
 	</div>
 	<div class="inputBox">
-		<input type="text" name="" required="" placeholder="Yes">
+		<input type="text" name="q5" required placeholder="Yes">
 		<label>If you get stuck are you still able to work on something else?</label>
 	</div>
-	<input type="submit" name="Submit">
+	
+	<input type="submit" name="">
 </form>
 </div>
+<script>
+            $('input[type="text1"]').dateDropper();    
+        </script>
+<script type="text/javascript">
+	$(".todolist").focus(function() {
+    if(document.getElementById('todolist').value === ''){
+        document.getElementById('todolist').value +='• ';
+	}
+});
+$(".todolist").keyup(function(event){
+	var keycode = (event.keyCode ? event.keyCode : event.which);
+    if(keycode == '13'){
+        document.getElementById('todolist').value +='• ';
+	}
+	var txtval = document.getElementById('todolist').value;
+	if(txtval.substr(txtval.length - 1) == '\n'){
+		document.getElementById('todolist').value = txtval.substring(0,txtval.length - 1);
+	}
+});
+</script>
+<script type="text/javascript">
+	$(".todolist1").focus(function() {
+    if(document.getElementById('todolist1').value === ''){
+        document.getElementById('todolist1').value +='• ';
+	}
+});
+$(".todolist1").keyup(function(event){
+	var keycode = (event.keyCode ? event.keyCode : event.which);
+    if(keycode == '13'){
+        document.getElementById('todolist1').value +='• ';
+	}
+	var txtval = document.getElementById('todolist1').value;
+	if(txtval.substr(txtval.length - 1) == '\n'){
+		document.getElementById('todolist1').value = txtval.substring(0,txtval.length - 1);
+	}
+});
+</script>
 </body>
 </html>

@@ -8,9 +8,22 @@
 </head>
 <body >
 <div class="container borderXwidth">
-  <a href="{%url 'worksnaps_report'%}" alt="Work Snap's Report">Work Snap's Report</a>
+	{%if user.is_superuser %}
+		
+  		<a href="{%url 'worksnaps_report'%}" alt="Work Snap's Report">Work Snap's Report</a>
+  	{%endif%}
   <a href="{%url 'daily_report'%}" alt="Daily Report">Daily Report</a>
   
+</div>
+<div class="usr_display borderXwidth">
+<a href="#">{%if user.is_superuser %}
+				{{user}}
+			{%else%}
+				Employee
+			{%endif%}</a>
+				
+			
+<a href="{%url 'logout'%}">Logout</a>
 </div>
 </body>
 </html>

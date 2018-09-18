@@ -2,7 +2,9 @@ from django.conf.urls import url
 from reports import views
 
 urlpatterns = [
-	url(r'^$',views.home),
+	url(r'^$',views.login_view,name='login'),
+	url(r'^logout$',views.logout_view,name='logout'),
+	url(r'^home',views.home,name='home'),
 	url(r'^worksnaps_report/', views.worksnaps_report_html,name='worksnaps_report'),
 	url(r'^refesh_projects/',views.create_project,name='refresh the projects'),
     url(r'^refesh_users/',views.create_users,name='refresh the users'),

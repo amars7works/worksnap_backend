@@ -1,0 +1,33 @@
+{%load static%}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>WorkSnaps</title>
+	<link rel="stylesheet" type="text/css" href="{%static 'home.css'%}">
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+<body >
+<div class="box2">
+<h2>Employer Login</h2>
+
+<form action='' method='POST' autocomplete="off">
+ {% csrf_token %}
+	<div class="inputBox">
+		<input type="text" name="username" required="">
+		<label>UserName</label>
+	</div>
+	<div class="inputBox">
+		<input type="Password" name="password" required="">
+		<label>Password</label>
+	</div>
+	 <input type="submit" class="submit">
+</form>
+</div>
+<form>
+<div class="container1 borderXwidth"> 
+  <a href="{%url 'home'%}" alt="Daily Report">Login As Employee</a>
+  
+</div>
+</form>
+</body>
+</html>

@@ -8,20 +8,40 @@ from rest_framework.decorators import api_view
 from django.shortcuts import render
 from django.http.response import JsonResponse
 from django.db.models import Q
-from django.shortcuts import render, HttpResponse
-
+from django.shortcuts import render, HttpResponse,redirect
+from django.contrib.auth import authenticate, login ,logout
 from xlsxwriter.workbook import Workbook
 from reports.models import ProjectsList,UsersList,UsersSummaryReport,HolidayList
 # Create your views here.
 
+# @api_view(['POST'])
+def login_view(request):
+    if request.method == 'GET':
+        return render(request, 'login.html')
+    if request.method == "POST":
+        username, password = request.POST['username'], request.POST['password']
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            login(request,user)
+            return redirect('home')
+        else:
+            return HttpResponse('{"error": "User does not exist"}')
+        return redirect('home',)
+
+def logout_view(request):
+    logout(request)
+    return redirect("login")
+
 def home(request):
-	return render(request,'home.html')
+	user=request.user
+	return render(request,'home.html',{'user':user})
 
 def worksnaps_report_html(request):
 	all_users=get_user_names()
 	return render(request,'worksnaps_report.html',{'all_users':all_users})
 def daily_report_html(request):
-	return render(request,'dailyreport.html')
+	all_users=get_user_names()
+	return render(request,'dailyreport.html',{'all_users':all_users})
 
 def get_data(url):
 	'''

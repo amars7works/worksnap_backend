@@ -4,7 +4,7 @@
 <head>
 	<title>WorkSnaps</title>
 	<link rel="stylesheet" type="text/css" href="{%static 'home.css'%}">
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+	
 	<link rel="stylesheet" type="text/css" href="{%static 'datedropper.css' %} ">
 	<script src="{%static 'js/jquery-1.10.2.min.js'%} "></script>
     <script src="{%static 'js/datedropper.js'%} "></script>
@@ -12,12 +12,19 @@
 
 </head>
 <body>
+
+<div class="container2 borderXwidth">
+  		<a href="{%url 'home'%}" alt="Home">Home</a>
+</div>
+<div class="pagination borderXwidth">
+  		<a href="{%url 'login'%}" alt="Employer Login">Employer Login</a>
+  	</div>
 <div class="box1">
 <div class="box_h1"><h1>Work Snap's</h1></div>
 <div class="center">
           <input type="checkbox" name="" >
         </div>
-<form action="/user_report" class="month-year-form">
+<form action="/user_report" class="month-year-form" autocomplete="off">
 	<div class="inputBox1">
 		<select name="user_name">
 			<option value="all">All</option>

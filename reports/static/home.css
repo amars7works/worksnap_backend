@@ -29,8 +29,67 @@ div.container a
     cursor: pointer;
 }
 
+div.container1 a
+{
+    color: #FFF;
+    text-decoration: none;
+    font: 50px Raleway;
+    margin: 0px 25px;
+    padding: 10px 10px;
+    position: absolute;
+    right: 15%;
+    top:40%;
+    z-index: 0;
+    cursor: pointer;
+}
 
+div.container2 a
+{
+    color: #FFF;
+    text-decoration: none;
+    font: 20px Raleway;
+   	margin: 0 auto;
+    padding: 10px 10px;
+    position: absolute;
+    left: 2%;
+    top:10%;
+    z-index: 0;
+    cursor: pointer;
+}
+div.pagination a
+{
+    color: #FFF;
+    text-decoration: none;
+    font: 20px Raleway;
+   	margin: 0 auto;
+    padding: 10px 10px;
+    position: absolute;
+    left: 2%;
+    top:20%;
+    z-index: 0;
+    cursor: pointer;
+}
+div.usr_display
+{
+    font-family: Raleway;
+    margin: 0 auto;
+	padding: 0;
+	position: absolute;
+	text-align: center;
+	top:9%	;
+	left:65%;	
+}
 
+div.usr_display a
+{
+    color: #FFF;
+    text-decoration: none;
+    font: 20px Raleway;
+    margin: 0px 25px;
+    padding: 10px 10px;
+    position: relative;
+    cursor: pointer;
+}
 
 /* Border X get width  */
 div.borderXwidth a:before,
@@ -75,6 +134,95 @@ div.borderXwidth a:hover:after {
 	box-shadow: 0 15px 25px rgba(0,0,0,.5);
 	border-radius: 10px;  
 }
+.box h2
+{
+	
+	margin:0 0 45px;
+	padding: 0px;
+	color: #fff;
+	text-align: center; 
+
+}
+.box_h1
+{
+	margin:0 0 180px;
+	padding: 0px;
+	color: #fff;
+	text-align: center; 
+}
+.box .inputBox
+{
+	position: relative;
+}
+.box .inputBox input
+{
+	width: 60%;
+	padding: 10px 0;
+	font-size: 16px;
+	color: #fff;
+	letter-spacing: 1px;
+	margin-bottom: 30px;
+	border:none;
+	border-bottom: 1px solid #fff;
+	outline: none;
+	background:transparent;
+}
+.box .inputBox textarea
+{
+	width: 60%;
+	padding: 10px 0;
+	font-size: 16px;
+	color: #fff;
+	letter-spacing: 1px;
+	margin-bottom: 30px;
+	border:none !important;
+	border-bottom: 1px solid #fff !important;
+	outline: none;
+	background:transparent;
+}
+
+.box .inputBox label
+{
+	position: absolute;
+	top: 0;
+	left:0;
+	letter-spacing: 1px;
+	padding: 10px 0;
+	font-size: 16px;
+	color: #fff;
+	pointer-events: none;
+	transition: .5s;
+
+}
+.box .inputBox input:focus ~ label,
+.box .inputBox input:valid ~ label
+{
+	top: -18px;
+	left: 0;
+	color: #03a9f4;
+	font-size: 12px;
+}
+
+.box .inputBox textarea:focus ~ label,
+.box .inputBox textarea:valid ~ label
+{
+	top: -18px;
+	left: 0;
+	color: #03a9f4;
+	font-size: 12px;
+}
+.box input[type="submit"]
+{
+	background: transparent;
+	border:none;
+	outline: none;
+	color: #fff;
+	background:#03a9f4;
+	padding: 10px 20px;
+	cursor: pointer;
+	border-radius: 5px;
+}
+
 .box1
 {
 	position: absolute;
@@ -88,8 +236,23 @@ div.borderXwidth a:hover:after {
 	box-shadow: 0 15px 25px rgba(0,0,0,.5);
 	border-radius: 10px;  
 }
+/* css for index Admin login*/
+.box2
+{
+	position: absolute;
+	top: 50%;
+	left: 30%;
+	transform: translate(-50%,-50%);
+	width: 500px;
+	padding:10px;
+	background:rgba(0,0,0,.8);
+	box-sizing: border-box;
+	box-shadow: 0 15px 25px rgba(0,0,0,.5);
+	border-radius: 10px;  
+}
 
-.box h2
+
+.box2 h2
 {
 	
 	margin:0 0 30px;
@@ -98,13 +261,58 @@ div.borderXwidth a:hover:after {
 	text-align: center; 
 
 }
-.box_h1
+.box2 .inputBox
 {
-	margin:0 0 180px;
-	padding: 0px;
-	color: #fff;
-	text-align: center; 
+	position: relative;
 }
+.box2 .inputBox input
+{
+	width: 60%;
+	padding: 10px 0;
+	font-size: 16px;
+	color: #fff;
+	letter-spacing: 1px;
+	margin-bottom: 30px;
+	border:none;
+	border-bottom: 1px solid #fff;
+	outline: none;
+	background:transparent;
+}
+
+.box2 .inputBox label
+{
+	position: absolute;
+	top: 0;
+	left:0;
+	letter-spacing: 1px;
+	padding: 10px 0;
+	font-size: 16px;
+	color: #fff;
+	pointer-events: none;
+	transition: .5s;
+
+}
+.box2 .inputBox input:focus ~ label,
+.box2 .inputBox input:valid ~ label
+
+{
+	top: -18px;
+	left: 0;
+	color: #03a9f4;
+	font-size: 12px;
+}
+.box2 input[type="submit"]
+{
+	background: transparent;
+	border:none;
+	outline: none;
+	color: #fff;
+	background:#03a9f4;
+	padding: 10px 20px;
+	cursor: pointer;
+	border-radius: 5px;
+} 	
+
 
 .day
 {	
@@ -128,57 +336,7 @@ div.borderXwidth a:hover:after {
 	
 
 }
-.box .inputBox
-{
-	position: relative;
-}
-.box .inputBox input
-{
-	width: 60%;
-	padding: 10px 0;
-	font-size: 16px;
-	color: #fff;
-	letter-spacing: 1px;
-	margin-bottom: 30px;
-	border:none;
-	border-bottom: 1px solid #fff;
-	outline: none;
-	background:transparent;
-}
 
-.box .inputBox label
-{
-	position: absolute;
-	top: 0;
-	left:0;
-	letter-spacing: 1px;
-	padding: 10px 0;
-	font-size: 16px;
-	color: #fff;
-	pointer-events: none;
-	transition: .5s;
-
-}
-.box .inputBox input:focus ~ label,
-.box .inputBox input:valid ~ label
-
-{
-	top: -18px;
-	left: 0;
-	color: #03a9f4;
-	font-size: 12px;
-}
-.box input[type="submit"]
-{
-	background: transparent;
-	border:none;
-	outline: none;
-	color: #fff;
-	background:#03a9f4;
-	padding: 10px 20px;
-	cursor: pointer;
-	border-radius: 5px;
-}
 .box1 input[type="submit"]
 {
 	background: transparent;
@@ -369,5 +527,33 @@ label
         border-bottom: 1px solid #fff;
         outline: none;
         background:#121211;
+}
+
+
+.inputBox select
+{
+        width: 40%;
+        padding: 10px 0;
+        font-size: 16px;
+        color: #fff;
+        letter-spacing: 1px;
+        margin-bottom: 30px;
+        border:none;
+        outline: none;
+        border-bottom: 1px solid #fff;
+        outline: none;
+        background:#121211;
+}
+
+.cal
+{	
+	position: absolute;
+	right:0px;
+	font-size: 22px;
+	top:17.7%;                     
+	padding: 10px;
+	color: #fff;
+	
+
 }
 
