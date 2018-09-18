@@ -18,7 +18,8 @@ def home(request):
 	return render(request,'home.html')
 
 def worksnaps_report_html(request):
-	return render(request,'worksnaps_report.html')
+	all_users=get_user_names()
+	return render(request,'worksnaps_report.html',{'all_users':all_users})
 def daily_report_html(request):
 	return render(request,'dailyreport.html')
 
@@ -280,13 +281,13 @@ def create_from_to_date(year,month):
 	to_date = year+'-'+month+'-'+'{}'.format(no_days_month)
 	return from_date,to_date
 
-def users_summary(from_date,to_date,year_month,user_name):
+def users_summary(from_date,to_date,year,month,user_name):
 	'''
 		Generate the user month report
 	'''
-	if year_month:
-		month = year_month.split('-')[1]
-		year = year_month.split('-')[0]
+	if year and month:
+		month = month
+		year = year
 		from_date,to_date = create_from_to_date(year,month)
 	if from_date:
 		month = from_date.split('-')[1]
@@ -418,11 +419,12 @@ def show_data(sheet1,user_names,headers,user_summary,cell_format):
 		column_data = 1
 
 def show_data_in_excel(request):
-	year_month = request.GET.get("month",0)
+	month = request.GET.get("month",0)
+	year = request.GET.get("year",2018)
 	from_date = request.GET.get("from_date",0)
 	to_date = request.GET.get("to_date",0)
 	user_name = request.GET.get("user_name",0)
-	user_summary,user_names = users_summary(from_date,to_date,year_month,user_name)
+	user_summary,user_names = users_summary(from_date,to_date,year,month,user_name)
 	# print(user_summary,"Data")
 
 	# filename = '{}_raw_data_{}_to_{}.xlsx'.format(request.user.username,

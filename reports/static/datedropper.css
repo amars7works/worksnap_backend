@@ -40,7 +40,7 @@
 }
 .picker-input {
   cursor: text;
-  width: 45%;
+  width: 75%;
   padding: 10px 0;
   margin-right: 30px;
   font-size: 16px;
@@ -52,7 +52,7 @@
   outline: none;
   float: left;
   background:transparent;
-
+  text-align:center;
 }
 .picker-input label
 {

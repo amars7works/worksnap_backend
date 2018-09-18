@@ -13,55 +13,74 @@
 </head>
 <body>
 <div class="box1">
-<form action="">
-		<div class="box_h1"><h1>Work Snap's</h1></div>
-	<div class="center">
-		<input type="checkbox" name="" >
-	</div>
+<div class="box_h1"><h1>Work Snap's</h1></div>
+<div class="center">
+          <input type="checkbox" name="" >
+        </div>
+<form action="/user_report" class="month-year-form">
 	<div class="inputBox1">
-		<select>
-			<option>All</option>
-			<option>Venkatesh</option>
-			<option>Vignan</option>
-			<option>Pavan Chand</option>
-			<option>Dileep</option>
-			<option>Narendra</option>
+		<select name="user_name">
+			<option value="all">All</option>
+                         {%for user in all_users %}
+				<option value='{{user}}'>{{user}}</option>
+			{%endfor%}
 		</select>
 	</div>
+
+        <div class="inputBox3">
+                <select name="year">
+                        <option value="">Select a Year</option>
+                        <option value="2018">2018</option>
+                </select>
+        </div>
 	<div class="inputBox2">
-		<select>
-			<option>January</option>
-			<option>February</option>
-			<option>March</option>
-			<option>April</option>
-			<option>May</option>
-			<option>June</option>
-			<option>July</option>
-			<option>August</option>
-			<option>September</option>
-			<option>October</option>
-			<option>November</option>
-			<option>December</option>
+		<select name="month">
+                        <option value="">Select a Month</option>
+			<option value="1">January</option>
+			<option value="2">February</option>
+			<option value="3">March</option>
+			<option value="4">April</option>
+			<option value="5">May</option>
+			<option value="6">June</option>
+			<option value="7">July</option>
+			<option value="8">August</option>
+			<option value="9">September</option>
+			<option value="10">October</option>
+			<option value="11">November</option>
+			<option value="12">December</option>
 		</select>
 	</div>
+
 	<div class="day">
 		<h6>Select Date Range</h6>
 	</div>
-	<div class="month">
+      <input type="submit" class="month-submit">
+</form>
+<form action="/user_report" class="date-form">
+       	<div class="month">
 		<h6>Select Month</h6>
 	</div>
+        <div class="inputBox4">
+                <select name="user_name">
+                        <option value="all">All</option>
+                        {%for user in all_users %}
+                                <option value='{{user}}'>{{user}}</option>
+                        {%endfor%}
+
+                </select>
+        </div>
 	 <div class="text">
-	 	<div class="inputBox">
-			<input type="text" data-large-mode="true" name='From' >
-			<!--data-large-mode="true" data-large-default="true"-->
-		</div>
+	     <div class="inputBox">
+		<input type="text" data-large-mode="true" data-format="Y-n-j" name='from_date' value="" />
+		<!--data-large-mode="true" data-large-default="true"-->
+	     </div>
 	 </div>
 	 <div class="text1">
 	 <div class="inputBox">
-		<input type="text" data-large-mode="true" name='To' >
+		<input type="text" data-large-mode="true"  data-format="Y-n-j" name='to_date' value="" />
 	 </div> 
 	 </div>
-	 <input type="submit" name="Submit">
+	 <input type="submit" class="date-submit"> 
 </form>
 </div>        
         
@@ -71,13 +90,10 @@
         </script>
             <script type="text/javascript">
             	$(document).ready(function(){
-            		$('div[class="inputBox"]').hide();
-            		$('div[class="month"]').hide();
+            		$('form[class="date-form"]').hide();
     				$("input[type='checkbox']").click(function(){
-        				$("div[class='inputBox']").toggle();
-        				$("div[class='inputBox2']").toggle();
-        				$('div[class="month"]').toggle();
-        				$('div[class="day"]').toggle();
+        				$('form[class="date-form"]').toggle();
+                                        $('form[class="month-year-form"]').toggle();
     });
 });</script>
 </body>

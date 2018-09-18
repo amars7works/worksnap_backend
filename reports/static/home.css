@@ -239,14 +239,14 @@ label
 }
 .text{
 	position: absolute;
-	top: 42%;
-	left: 45%;
+	top: 40%;
+	left: 55%;
 	transform: translate(-50%);
 }
 .text1{
 	position: absolute;
-	top: 42%;
-	left: 65%;
+	top: 60%;
+	left: 55%;
 	transform: translate(-50%);
 }
 .inputBox1
@@ -258,9 +258,9 @@ label
 }
 .inputBox1 select
 {
-	width: 130%;
+	width: 120%;
 	padding: 10px 0;
-	font-size: 20px;
+	font-size: 16px;
 	color: #fff;
 	letter-spacing: 1px;
 	margin-bottom: 30px;
@@ -269,6 +269,27 @@ label
 	border-bottom: 1px solid #fff;
 	outline: none;
 	background:#121211;
+}
+.inputBox3
+{
+        position: absolute;
+        top: 50%;
+        left: 43%;
+        transform:translate(-50%,-50%);
+}
+.inputBox3 select
+{
+        width: 130%;
+        padding: 10px 0;
+        font-size: 16px;
+        color: #fff;
+        letter-spacing: 1px;
+        margin-bottom: 30px;
+        border:none;
+        outline: none;
+        border-bottom: 1px solid #fff;
+        outline: none;
+        background:#121211;
 }
 
 /*.box1:before
@@ -293,15 +314,15 @@ label
 .inputBox2
 {
 	position: absolute;
-	top: 50%;
-	left: 40%;
+	top: 67%;
+	left: 43.5%;
 	transform:translate(-50%,-50%);
 }
 .inputBox2 select
 {
-	width: 130%;
+	width: 120%;
 	padding: 10px 0;
-	font-size: 20px;
+	font-size: 16px;
 	color: #fff;
 	letter-spacing: 1px;
 	margin-bottom: 30px;
@@ -327,4 +348,26 @@ label
 	height: 50px;
 	background: #007ce0;
 
+*/
+.inputBox4
+{
+        position: absolute;
+        top: 50%;
+        left: 15%;
+        transform:translate(-50%,-50%);
 }
+.inputBox4 select
+{
+        width: 120%;
+        padding: 10px 0;
+        font-size: 16px;
+        color: #fff;
+        letter-spacing: 1px;
+        margin-bottom: 30px;
+        border:none;
+        outline: none;
+        border-bottom: 1px solid #fff;
+        outline: none;
+        background:#121211;
+}
+
