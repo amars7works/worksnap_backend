@@ -5,6 +5,9 @@
 	<title>WorkSnaps</title>
 	<link rel="stylesheet" type="text/css" href="{%static 'home.css'%}">
 	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">		
+	</script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="{%static 'datedropper.css' %} ">
 	<script src="{%static 'js/jquery-1.10.2.min.js'%} "></script>
     <script src="{%static 'js/datedropper.js'%} "></script>
@@ -21,8 +24,19 @@
   	</div>
 	<div class="box">
 		<h2>Daily Report</h2>
-<form action="" autocomplete="off">
-	
+{% if messages %}
+<ul class="messages">
+<div class="alert alert-success alert-dismissible" style="width: 70%">
+<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+<strong>Success!</strong>
+    {% for message in messages %}
+    	{{ message }}
+    {% endfor %}
+</div>
+</ul>
+{% endif %}
+<form action="/store_daily_report/" method="post" autocomplete="off">
+	{% csrf_token %}
 	<div class="inputBox">
 		<select name="username">
 			<option value="">Select Your Name</option>
@@ -32,7 +46,7 @@
 		</select>
 	</div>
 	<div class="cal">
-		<input type="text1" data-large-mode="true"  data-format="Y-n-j" name='created_at' value=""  />
+		<input type="text1" data-large-mode="true"  data-format="Y-n-j" name="cretaed_at"/>
 	</div>
 	<div class="inputBox">		
     	<textarea id="todolist" class="todolist" name="q1" required></textarea>
@@ -55,7 +69,7 @@
 		<label>If you get stuck are you still able to work on something else?</label>
 	</div>
 	
-	<input type="submit" name="">
+	<input type="submit">
 </form>
 </div>
 <script>

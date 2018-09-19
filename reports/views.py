@@ -10,6 +10,8 @@ from django.http.response import JsonResponse
 from django.db.models import Q
 from django.shortcuts import render, HttpResponse,redirect
 from django.contrib.auth import authenticate, login ,logout
+from django.contrib import messages
+
 from xlsxwriter.workbook import Workbook
 from reports.models import ProjectsList,UsersList,UsersSummaryReport,HolidayList,UserDailyReport
 # Create your views here.
@@ -477,19 +479,23 @@ def show_data_in_excel(request):
 
 def store_daily_report(request):
 	if request.method == "POST":
-		userame = request.GET.get("username","Not filled anything")
-		created_at = request.GET.get("created_at","Not filled anything")
-		q1 = request.GET.get("q1","Not filled anything")
-		q2 = request.GET.get("q2","Not filled anything")
-		q3 = request.GET.get("q3","Not filled anything")
-		q4 = request.GET.get("q4","Not filled anything")
-		q5 = request.GET.get("q5","Not filled anything")
+		userame = request.POST.get("username","Not filled anything")
+		cretaed_at = request.POST.get("cretaed_at","Not filled anything")
+		q1 = request.POST.get("q1","Not filled anything")
+		q2 = request.POST.get("q2","Not filled anything")
+		q3 = request.POST.get("q3","Not filled anything")
+		q4 = request.POST.get("q4","Not filled anything")
+		q5 = request.POST.get("q5","Not filled anything")
 		UserDailyReport.objects.create(
-			username=userame,created_at=created_at,what_was_done_this_day=q1,
+			username=userame,cretaed_at=cretaed_at,what_was_done_this_day=q1,
 			what_is_your_plan_for_the_next_day = q2,
 			what_are_your_blockers = q3,
 			do_you_have_enough_tasks_for_next_three_days = q4,
 			if_you_get_stuck_are_you_still_able_to_work_on_something_else = q5)
-		return JsonResponse({"Submitted":"success"})
+		messages.success(request, 'Daily report submitted')
+		all_users=get_user_names()
+		return render(request,'dailyreport.html',{'all_users':all_users})
 	else:
-		return JsonResponse({"Submitted":"failed"})
+		messages.error(request, 'Daily report did not submit')
+		all_users=get_user_names()
+		return render(request,'dailyreport.html',{'all_users':all_users})
