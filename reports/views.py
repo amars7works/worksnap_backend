@@ -24,50 +24,61 @@ from reports.models import ProjectsList,\
 
 def user_register(request):
 	if request.method == "POST":
-		print("step1")
 		user_name,user_email,password,joined_date = (request.POST['user_name'],
 			request.POST['user_email'],
 			request.POST['password'],request.POST['joined_date'])
-		print(user_name,user_email,password,joined_date)
-		user_profile = User.objects.create(username=user_name,
-                                 email=user_email,
-                                 password=password)
+		user_profile = User.objects.create_user(username=user_name,
+								 email=user_email,
+								 password=password)
 		user_profile = UserProfile.objects.create(user_name=user_name,
-                                 user_email=user_email,
-                                 password=password,
-                                 joined_date=joined_date)
-		return render(request, 'login.html')
+								 user_email=user_email,
+								 password=password,
+								 joined_date=joined_date)
+		all_users=get_user_names()
+		return render(request, 'login.html',{'all_users':all_users})
 	else:
-		return render(request, 'login.html')
+		return render(request, 'login.html',{'all_users':all_users})
 
 def login_view(request):
-    all_users=get_user_names()
-    return render(request, 'login.html',{'all_users':all_users})
-    if request.method == "POST":
-        username, password = request.POST['username'], request.POST['password']
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            login(request,user)
-            return redirect('home')
-        else:
-            return HttpResponse('{"error": "User does not exist"}')
-        return redirect('home',)
+	all_users=get_user_names()
+	return render(request, 'login.html',{'all_users':all_users})
 
 def logout_view(request):
-    logout(request)
-    return redirect("login")
+	logout(request)
+	return redirect("login")
 
 def home(request):
-	user=request.user
-	return render(request,'home.html',{'user':user})
+	if request.method == "POST":
+		username, password = request.POST['username'], request.POST['password']
+		user = authenticate(username = username, password = password)
+		if user is not None:
+			login(request,user)
+			user_name = request.user
+			return render(request,'home.html',{'user':user_name})
+			# return render(request,'worksnaps_report.html',{'all_users':all_users})
+		else:
+			return HttpResponse('{"error": "User does not exist"}')
+	else:
+		user_name = request.user
+		return render(request,'home.html',{'user':user_name})
 
 def worksnaps_report_html(request):
-	all_users=get_user_names()
-	return render(request,'worksnaps_report.html',{'all_users':all_users})
+	user = request.user
+	if user == "s7_worksnaps":
+		all_users=get_user_names()
+		return render(request,'worksnaps_report.html',{'all_users':all_users})
+	else:
+		return JsonResponse(
+			{"Sorry dude you do not have permissions":"To access you must be super user"})
 
 def daily_report_html(request):
-	all_users=get_user_names()
-	return render(request,'dailyreport.html',{'all_users':all_users})
+	user = request.user
+	if user.id == None:
+		return JsonResponse(
+			{"Sorry dude you do not have permissions":"To access you must be login"})
+	else:
+		all_users=get_user_names()
+		return render(request,'dailyreport.html',{'all_users':all_users})
 
 def registration_html(request):
 	all_users=get_user_names()
@@ -323,6 +334,7 @@ def get_user_names():
 		last_name = single_user.user_last_name
 		username = first_name+' '+last_name
 		user_name.append(username)
+	user_name.append("s7_worksnaps")
 	return sorted(user_name)
 
 def create_from_to_date(year,month):
@@ -507,7 +519,7 @@ def show_data_in_excel(request):
 
 def store_daily_report(request):
 	if request.method == "POST":
-		userame = request.POST.get("username","Not filled anything")
+		username_excel = request.user
 		cretaed_at = request.POST.get("cretaed_at","Not filled anything")
 		q1 = request.POST.get("q1","Not filled anything")
 		q2 = request.POST.get("q2","Not filled anything")

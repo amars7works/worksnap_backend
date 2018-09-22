@@ -37,14 +37,14 @@
 {% endif %}
 <form action="/store_daily_report/" method="post" autocomplete="off">
 	{% csrf_token %}
-	<div class="inputBox">
+	<!-- <div class="inputBox">
 		<select name="username">
 			<option value="">Select Your Name</option>
         	{%for user in all_users %}
 			<option value='{{user}}'>{{user}}</option>
 			{%endfor%}
 		</select>
-	</div>
+	</div> -->
 	<div class="cal">
 		<input type="text1" data-large-mode="true"  data-format="Y-n-j" name="cretaed_at"/>
 	</div>
