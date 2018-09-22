@@ -11,12 +11,34 @@ from django.db.models import Q
 from django.shortcuts import render, HttpResponse,redirect
 from django.contrib.auth import authenticate, login ,logout
 from django.contrib import messages
+from django.contrib.auth.models import User
 
 from xlsxwriter.workbook import Workbook
-from reports.models import ProjectsList,UsersList,UsersSummaryReport,HolidayList,UserDailyReport
+from reports.models import ProjectsList,\
+							UsersList,\
+							UsersSummaryReport,\
+							HolidayList,\
+							UserDailyReport,\
+							UserProfile
 # Create your views here.
 
-# @api_view(['POST'])
+def user_register(request):
+	if request.method == "POST":
+		user_name,user_email,password,joined_date = (request.POST['user_name'],
+			request.POST['user_email'],
+			request.POST['password'],request.POST['joined_date'])
+
+		user_profile = User.objects.create_user(username=user_name,
+                                 email=user_email,
+                                 password=password)
+		user_profile = UserProfile.objects.create_user(user_name=user_name,
+                                 user_email=user_email,
+                                 password=password,
+                                 joined_date=joined_date)
+		return render(request, 'login.html')
+	else:
+		return render(request, 'login.html')
+
 def login_view(request):
     if request.method == 'GET':
         return render(request, 'login.html')
