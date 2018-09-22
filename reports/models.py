@@ -50,4 +50,13 @@ class UserDailyReport(models.Model):
 
 	def __str__(self):
 		return "%s"%(self.username)
+
+class UserProfile(models.Model):
+	user_name = models.CharField(max_length=100)
+	user_email = models.EmailField(max_length=70,blank=True)
+	password = models.TextField()
+	joined_date = models.DateField()
+
+	def __str__(self):
+		return "%s"%(self.user_name)
  

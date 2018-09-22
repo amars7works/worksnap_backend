@@ -14,4 +14,7 @@ urlpatterns = [
     url(r'^daily_report/', views.daily_report_html,name='daily_report'),
     url(r'^store_daily_report/', views.store_daily_report,
     	name=' store daily report'),
+    url(r'^user_register/', views.user_register,
+        name='user_register'),
+    url(r'^register_form/', views.registration_html,name='register_form'),
 	]

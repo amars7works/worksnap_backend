@@ -8,25 +8,28 @@
 </head>
 <body >
 <div class="box2">
-<h2>Employer Login</h2>
+<h2>Login</h2>
 
-<form action='' method='POST' autocomplete="off">
+<form action='{%url "home"%}' method='POST' autocomplete="off">
  {% csrf_token %}
 	<div class="inputBox">
-		<input type="text" name="username" required="">
-		<label>UserName</label>
-	</div>
+        <select name="username" id="username">
+            <option value=''>Select Username</option>
+            {%for user in all_users %}
+                <option value='{{user}}'>{{user}}</option>
+            {%endfor%}
+        </select>
+    </div>
 	<div class="inputBox">
 		<input type="Password" name="password" required="">
 		<label>Password</label>
 	</div>
 	 <input type="submit" class="submit">
 </form>
+<a href="{%url 'register_form' %}"><input type="submit" name="register" class="submit" value="register" style="position: absolute;top:81%;left:21%"></a>
 </div>
-<form>
-<div class="container1 borderXwidth"> 
-  <a href="{%url 'home'%}" alt="Daily Report">Login As Employee</a>
-  
+
+
 </div>
 </form>
 </body>
