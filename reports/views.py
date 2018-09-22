@@ -24,14 +24,15 @@ from reports.models import ProjectsList,\
 
 def user_register(request):
 	if request.method == "POST":
+		print("step1")
 		user_name,user_email,password,joined_date = (request.POST['user_name'],
 			request.POST['user_email'],
 			request.POST['password'],request.POST['joined_date'])
-
-		user_profile = User.objects.create_user(username=user_name,
+		print(user_name,user_email,password,joined_date)
+		user_profile = User.objects.create(username=user_name,
                                  email=user_email,
                                  password=password)
-		user_profile = UserProfile.objects.create_user(user_name=user_name,
+		user_profile = UserProfile.objects.create(user_name=user_name,
                                  user_email=user_email,
                                  password=password,
                                  joined_date=joined_date)
@@ -40,8 +41,8 @@ def user_register(request):
 		return render(request, 'login.html')
 
 def login_view(request):
-    if request.method == 'GET':
-        return render(request, 'login.html')
+    all_users=get_user_names()
+    return render(request, 'login.html',{'all_users':all_users})
     if request.method == "POST":
         username, password = request.POST['username'], request.POST['password']
         user = authenticate(username=username, password=password)
@@ -63,9 +64,14 @@ def home(request):
 def worksnaps_report_html(request):
 	all_users=get_user_names()
 	return render(request,'worksnaps_report.html',{'all_users':all_users})
+
 def daily_report_html(request):
 	all_users=get_user_names()
 	return render(request,'dailyreport.html',{'all_users':all_users})
+
+def registration_html(request):
+	all_users=get_user_names()
+	return render(request,'register.html',{'all_users':all_users})
 
 def get_data(url):
 	'''

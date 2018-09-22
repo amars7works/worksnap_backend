@@ -1,0 +1,53 @@
+{%load static%}
+<!DOCTYPE html>
+<html>
+<head>
+<title>Register</title>
+    <link rel="stylesheet" type="text/css" href="{%static 'home.css'%}">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{%static 'datedropper.css' %} ">
+    <script src="{%static 'js/jquery-1.10.2.min.js'%} "></script>
+    <script src="{%static 'js/datedropper.js'%} "></script>
+</head>
+<body>
+    <div class="box2">
+<h2>Employer Register</h2>
+
+<form  autocomplete="off" action="{%url 'user_register'%}" method="POST">
+ {% csrf_token %}
+    <div class="inputBox">
+        <select name="user_name" id="username">
+            <option value=''>Select Username</option>
+            {%for user in all_users %}
+                <option value='{{user}}'>{{user}}</option>
+            {%endfor%}
+        </select>
+    </div>
+     <div class="inputBox">
+        <input  name="user_email" required="">
+        <label>Email</label>
+    </div>
+    <div class="inputBox">
+        <input type="Password" name="password" required="">
+        <label>Password</label>
+    </div>
+    <div class="inputBox">
+        <input type="Password" name="password2" required="">
+        <label>Confirm Password</label>
+    </div>
+    <div class="cal">
+        <input type="text" data-large-mode="true"  data-format="Y-n-j" name='joined_date' value="" />
+
+     </div> 
+     <label style="position: absolute;
+    top: 17%;
+    left: 61%;">Joining Date</label>
+     <input type="submit" class="submit" >
+<form>
+</div>
+
+ <script>
+            $('input[type="text"]').dateDropper();       
+        </script>
+</body>
+</html>

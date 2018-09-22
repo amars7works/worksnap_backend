@@ -241,7 +241,7 @@ div.borderXwidth a:hover:after {
 {
 	position: absolute;
 	top: 50%;
-	left: 30%;
+	left: 50%;
 	transform: translate(-50%,-50%);
 	width: 500px;
 	padding:10px;
