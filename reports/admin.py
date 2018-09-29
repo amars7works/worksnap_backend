@@ -1,5 +1,10 @@
 from django.contrib import admin
-from reports.models import ProjectsList,UsersList,UsersSummaryReport,HolidayList,UserDailyReport
+from reports.models import ProjectsList,\
+							UsersList,\
+							UsersSummaryReport,\
+							HolidayList,\
+							UserDailyReport,\
+							RemainingAccruedLeaves
 # Register your models here.
 
 class ProjectsListAdmin(admin.ModelAdmin):
@@ -22,8 +27,13 @@ class UserDailyReportAdmin(admin.ModelAdmin):
 	list_display = ('username','cretaed_at',)
 	search_fields = ('username','cretaed_at',)
 
+class RemainingAccruedLeavesAdmin(admin.ModelAdmin):
+	list_display = ('user','remaining_leaves',)
+	search_fields = ('user',)
+
 admin.site.register(ProjectsList,ProjectsListAdmin)
 admin.site.register(UsersList,UsersListAdmin)
 admin.site.register(HolidayList,HolidayListAdmin)
 admin.site.register(UsersSummaryReport,UsersSummaryReportAdmin)
 admin.site.register(UserDailyReport,UserDailyReportAdmin)
+admin.site.register(RemainingAccruedLeaves,RemainingAccruedLeavesAdmin)

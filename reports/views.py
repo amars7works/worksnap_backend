@@ -186,7 +186,7 @@ def convert_date_datetime_str(create_datetime_obj):
 		Args: date(date time object)
 		Return: date(in string)
 	''' 
-	date_str = datetime.strftime(datetime_obj, '%Y-%m-%d')
+	date_str = datetime.strftime(create_datetime_obj, '%Y-%m-%d')
 	return date_str	
 
 def create_users_summary(request):
