@@ -243,7 +243,7 @@ def add_holiday_list(request):
 	return JsonResponse({"Refresh":"Success"})
 
 
-def working_days(year,month):
+def working_days(year,month,from_date,to_date):
 	'''
 		Calculates the no of working days in a given month
 	'''
