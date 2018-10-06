@@ -1,8 +1,11 @@
 from django.conf.urls import url
 from reports import views
+from graphene_django.views import GraphQLView
+from worksnaps_report.schema import schema
 
 urlpatterns = [
 	url(r'^$',views.login_view,name='login'),
+    url(r'^graphql', GraphQLView.as_view(graphiql=True,schema=schema)),
 	url(r'^logout$',views.logout_view,name='logout'),
 	url(r'^home',views.home,name='home'),
 	url(r'^worksnaps_report/', views.worksnaps_report_html,name='worksnaps_report'),
