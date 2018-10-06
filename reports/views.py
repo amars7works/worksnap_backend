@@ -64,7 +64,7 @@ def home(request):
 
 def worksnaps_report_html(request):
 	user = request.user
-	if user == "s7_worksnaps":
+	if user.is_superuser:
 		all_users=get_user_names()
 		return render(request,'worksnaps_report.html',{'all_users':all_users})
 	else:
@@ -243,46 +243,46 @@ def add_holiday_list(request):
 	return JsonResponse({"Refresh":"Success"})
 
 
-def working_days(year,month):
+def working_days(year,month,from_date,to_date):
 	'''
 		Calculates the no of working days in a given month
 	'''
 	monthrang = monthrange(int(year),int(month))
 	if monthrang[0] == 6 and monthrang[1] >= 30:
 		no_of_working_days =  monthrang[1] - 6
-	elif monthrang[0] == 5 and monthrang[1] >= 31:
+	elif monthrang[0] == 5 and monthrang[1] >= 30:
 		no_of_working_days =  monthrang[1] - 6
 	elif monthrang[0] == 0:
 		no_of_working_days =  monthrang[1] - 6
 	else:
 		no_of_working_days = monthrang[1] - 5
 	holidays = HolidayList.objects.filter(
-		Q(holiday_date__gte='2018-08-1') & Q(holiday_date__lte='2018-08-31'))
+		Q(holiday_date__gte=from_date) & Q(holiday_date__lte=to_date))
 	no_holidays = len(holidays)
 	no_of_working_days = no_of_working_days - no_holidays
 	return no_of_working_days,monthrang[0],monthrang[1]
 
-def create_datetime_obj(sunday_date_str):
+def create_datetime_obj(sunday_date_str,year,month):
 	'''
 		create date objets for give month
 	'''
 	sun_sat_dates_datetime = []
 	secons_sat = sunday_date_str[1]
-	sun_sat_dates_datetime.append(date(2018,8,secons_sat-1))
+	sun_sat_dates_datetime.append(date(int(year),int(month),secons_sat-1))
 	for single_date in sunday_date_str:
-		sun_sat_dates_datetime.append(date(2018,8,single_date))
+		sun_sat_dates_datetime.append(date(int(year),int(month),single_date))
 	return sun_sat_dates_datetime
 
-def get_this_month_holidays():
+def get_this_month_holidays(from_date,to_date):
 	'''
 		Get the holidays for the given month
 	'''
 	holiday_qs = HolidayList.objects.filter(
-		Q(holiday_date__gte='2018-08-1') & Q(
-			holiday_date__lte='2018-08-31'))
+		Q(holiday_date__gte=from_date) & Q(
+			holiday_date__lte=to_date))
 	return [single_holiday.holiday_date for single_holiday in holiday_qs]
 
-def create_month_days(no_days):
+def create_month_days(no_days,year,month):
 	'''
 		Create a list of no of days
 		Args: number of days
@@ -290,7 +290,7 @@ def create_month_days(no_days):
 	'''
 	whole_month_days = []
 	for sing_day in range(0,no_days):
-		whole_month_days.append(date(2018,8,sing_day+1))
+		whole_month_days.append(date(int(year),int(month),sing_day+1))
 	return whole_month_days
 
 def get_leave_dates(whole_month_days,no_dates):
@@ -338,9 +338,9 @@ def get_user_names():
 	return sorted(user_name)
 
 def create_from_to_date(year,month):
-	no_working_days,day_started,no_days_month = working_days(year,month)
+	monthrang = monthrange(int(year),int(month))
 	from_date = year+'-'+month+'-'+'1'
-	to_date = year+'-'+month+'-'+'{}'.format(no_days_month)
+	to_date = year+'-'+month+'-'+'{}'.format(monthrang[1])
 	return from_date,to_date
 
 def users_summary(from_date,to_date,year,month,user_name):
@@ -365,7 +365,7 @@ def users_summary(from_date,to_date,year,month,user_name):
 	else:
 		user_names = []
 		user_names.append(user_name)
-	data2 = {}	
+	data2 = {}
 	for user_name in user_names:
 		user_summary_qs = UsersSummaryReport.objects.filter(
 			Q(date__gte=from_date) & Q(date__lte=to_date),user_name=user_name)
@@ -376,31 +376,30 @@ def users_summary(from_date,to_date,year,month,user_name):
 			time_done = single_date.duration
 			total_duration.append(int(time_done))
 			no_dates.append(single_date.date)
-		
-		no_working_days,month_start_day,days_in_month = working_days(year,month)
+
+		no_working_days,month_start_day,days_in_month = working_days(year,month,from_date,to_date)
 		sunday_start = 7-month_start_day
 		list_hanig_sundays = []
-		
+
 		while sunday_start <= 31:
 			list_hanig_sundays.append(sunday_start)
 			sunday_start = sunday_start + 7
-		
-		list_sun_sat = create_datetime_obj(list_hanig_sundays)
-		list_holidays = get_this_month_holidays()
-		
+
+		list_sun_sat = create_datetime_obj(list_hanig_sundays,year,month)
+		list_holidays = get_this_month_holidays(from_date,to_date)
 		if list_holidays not in list_sun_sat:
 			list_sun_sat.extend(list_holidays)
-		
+
 		month_holidays = list(set(list_sun_sat))
-		whole_month_days = create_month_days(days_in_month)
-		
+		whole_month_days = create_month_days(days_in_month,year,month)
+
 		no_dates_holidays = []
 		no_dates_holidays.extend(month_holidays)
 		no_dates_holidays.extend(no_dates)
-		
+
 		leave_dates = get_leave_dates(whole_month_days,no_dates_holidays)
 		user_worked_as_per_working_days = list(set(no_dates)-set(month_holidays))
-		
+
 		worked_weekend_days = worked_on_weekenddays(user_worked_as_per_working_days,no_dates)
 		if worked_weekend_days:
 			worked_on_weekend_days_holiday = "Yes"
@@ -411,7 +410,22 @@ def users_summary(from_date,to_date,year,month,user_name):
 			extra_time_worked = 0
 		total_time_to_work = (no_working_days-len(leave_dates)) * 480
 		total_time_worked = sum(total_duration)
-		
+		#try:
+		#	user_profile = UserProfile.objects.get(user_name=user_name)
+		#	print(user_profile,"user profile")
+		#	joined_date = user_profile.joined_date
+		#	from_date_obj = convert_date_str_datetime(from_date)
+		#	if joined_date > from_date_obj.date():
+		#		print("dddddddd")
+		#except:
+		#	pass
+		if user_name == "Bhanu Chandar Bala":
+			leave_dates = []
+		elif user_name == "Sai Bhaskar Ravuri":
+			date_obj = date(2018,9,14)
+			leave_dates = [date_obj]
+		elif user_name == "Sushmasridurga DONTHAMSETTI":
+                        leave_dates = []
 		data = {
 		'Name': user_name,
 		'No of leaves' :  len(leave_dates),
@@ -426,14 +440,14 @@ def users_summary(from_date,to_date,year,month,user_name):
 		"Total time worked":total_time_worked,
 		}
 		data2[user_name] = data
-
 	return data2,user_names
 def username_excel(sheet1,user_names,cell_format):
 	row = 1
 	column = 0
 	for i,single_user in enumerate(sorted(user_names)):
-		sheet1.write(row,column,single_user)
-		row = row + 1
+		if single_user != "Ikkurthi Manikanta" and single_user != "Saumya Garg" and single_user != "s7_worksnaps":
+			sheet1.write(row,column,single_user)
+			row = row + 1
 
 def headers_data(sheet1,headers,cell_format):
 	row = 0
@@ -457,29 +471,30 @@ def show_data(sheet1,user_names,headers,user_summary,cell_format):
 	column = 0
 	row_data = 1
 	column_data = 1
-	for key, user_data in sorted(user_summary.items()):	
-		sheet1.write(row_data,column_data,user_data.get('No of working days in August',"-"),cell_format)
-		column_data = column_data + 1
-		sheet1.write(row_data,column_data,user_data.get('No of days worked',"-"),cell_format)
-		column_data = column_data + 1
-		sheet1.write(row_data,column_data,user_data.get('No of leaves',"-"),cell_format)
-		column_data = column_data + 1
-		leave_dates = change_date_format(user_data.get('Leave Dates',"-"))
-		sheet1.write(row_data,column_data,str(leave_dates),cell_format)
-		column_data = column_data + 1
-		sheet1.write(row_data,column_data,user_data.get('Total time to work',"-"),cell_format)
-		column_data = column_data + 1
-		sheet1.write(row_data,column_data,user_data.get('Total time worked',"-"),cell_format)
-		column_data = column_data + 1
-		sheet1.write(row_data,column_data,user_data.get('Worked on weekend days or holidays',"-"),cell_format)
-		column_data = column_data + 1
-		sheet1.write(row_data,column_data,user_data.get('Time Worked on weekend days',"-"),cell_format)
-		column_data = column_data + 1
-		weekend_days = change_date_format(user_data.get('Dates Worked on weekend days',"-"))
-		sheet1.write(row_data,column_data,str(weekend_days),cell_format)
-		column_data = column_data + 1
-		row_data = row_data + 1
-		column_data = 1
+	for key, user_data in sorted(user_summary.items()):
+		if key != "Ikkurthi Manikanta" and key != "Saumya Garg" and key != "s7_worksnaps":
+			sheet1.write(row_data,column_data,user_data.get('No of working days in August',"-"),cell_format)
+			column_data = column_data + 1
+			sheet1.write(row_data,column_data,user_data.get('No of days worked',"-"),cell_format)
+			column_data = column_data + 1
+			sheet1.write(row_data,column_data,user_data.get('No of leaves',"-"),cell_format)
+			column_data = column_data + 1
+			leave_dates = change_date_format(user_data.get('Leave Dates',"-"))
+			sheet1.write(row_data,column_data,str(leave_dates),cell_format)
+			column_data = column_data + 1
+			sheet1.write(row_data,column_data,user_data.get('Total time to work',"-"),cell_format)
+			column_data = column_data + 1
+			sheet1.write(row_data,column_data,user_data.get('Total time worked',"-"),cell_format)
+			column_data = column_data + 1
+			sheet1.write(row_data,column_data,user_data.get('Worked on weekend days or holidays',"-"),cell_format)
+			column_data = column_data + 1
+			sheet1.write(row_data,column_data,user_data.get('Time Worked on weekend days',"-"),cell_format)
+			column_data = column_data + 1
+			weekend_days = change_date_format(user_data.get('Dates Worked on weekend days',"-"))
+			sheet1.write(row_data,column_data,str(weekend_days),cell_format)
+			column_data = column_data + 1
+			row_data = row_data + 1
+			column_data = 1
 
 def show_data_in_excel(request):
 	month = request.GET.get("month",0)
@@ -498,11 +513,11 @@ def show_data_in_excel(request):
 	response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 	response['Content-Disposition'] = "attachment; filename=Worksnaps Report.xlsx"
 	book = Workbook(response,{'in_memory': True})
-	headers = ['No of working days in August','No of days worked','No of leaves','Leave Dates',
+	headers = ['No of working days in September','No of days worked','No of leaves','Leave Dates',
 	'Total time to work','Total time worked','Worked on weekend days or holidays',
 	'Time Worked on weekend days','Dates Worked on weekend days']
 	
-	sheet1 = book.add_worksheet('Aug-2018')
+	sheet1 = book.add_worksheet('Sep-2018')
 	sheet1.freeze_panes(1, 1)
 	sheet1.set_column('A:A',25)
 	sheet1.set_row(0, 40)
@@ -519,7 +534,7 @@ def show_data_in_excel(request):
 
 def store_daily_report(request):
 	if request.method == "POST":
-		username_excel = request.user
+		username = request.user
 		cretaed_at = request.POST.get("cretaed_at","Not filled anything")
 		q1 = request.POST.get("q1","Not filled anything")
 		q2 = request.POST.get("q2","Not filled anything")
@@ -527,7 +542,7 @@ def store_daily_report(request):
 		q4 = request.POST.get("q4","Not filled anything")
 		q5 = request.POST.get("q5","Not filled anything")
 		UserDailyReport.objects.create(
-			username=userame,cretaed_at=cretaed_at,what_was_done_this_day=q1,
+			username=username,cretaed_at=cretaed_at,what_was_done_this_day=q1,
 			what_is_your_plan_for_the_next_day = q2,
 			what_are_your_blockers = q3,
 			do_you_have_enough_tasks_for_next_three_days = q4,
