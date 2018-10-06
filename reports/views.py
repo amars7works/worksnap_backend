@@ -176,7 +176,7 @@ def convert_date_str_datetime(date_str):
 		Convert the string date to date time object
 		Args: date(in string)
 		Return: date(date time object)
-	''' 
+	'''
 	date_datetime = datetime.strptime(date_str, '%Y-%m-%d')
 	return date_datetime
 
@@ -185,9 +185,34 @@ def convert_date_datetime_str(create_datetime_obj):
 		Convert the date object to string date
 		Args: date(date time object)
 		Return: date(in string)
-	''' 
+	'''
 	date_str = datetime.strftime(create_datetime_obj, '%Y-%m-%d')
-	return date_str	
+	return date_str
+
+def get_all_users_daily_data(from_date,to_date):
+	users_qs = UsersList.objects.only('user_id')
+	users_ids = [single_user.user_id for single_user in users_qs]
+	current_date = to_date
+	from_date = from_date
+	while from_date < current_date:
+		print(from_date,"from_date")
+		to_date_datetime = from_date + timedelta(days = 1)
+		from_date_str = convert_date_datetime_str(from_date)
+		to_date_str = convert_date_datetime_str(to_date_datetime)
+		for user_id in users_ids:
+			worksnaps_summary = get_summary(user_id,from_date_str,to_date_str)
+			print(worksnaps_summary,"user data")
+			print(worksnaps_summary.get("manager_report"),"worksnaps_summary")
+			if worksnaps_summary.get("manager_report"):
+				print("Entered in to the first loop")
+				for i,value in enumerate(worksnaps_summary.get("manager_report")):
+					if to_date_str == value.get('date',0):
+						UsersSummaryReport.objects.create(
+							user_name=value.get('user_name',''),user_id=value.get(
+								'user_id',''),date=value.get('date',''),duration=value.get(
+								'duration_in_minutes',''),project_name=value.get(
+								'project_name',''))
+		from_date = from_date + timedelta(days = 1)
 
 def create_users_summary(request):
 	'''

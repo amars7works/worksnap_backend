@@ -1,4 +1,5 @@
 import os
+from celery.schedules import crontab
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -100,7 +101,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -123,3 +124,30 @@ REST_FRAMEWORK = {
         'utils.exempt.CsrfExemptSessionAuthentication',
 		)
 }
+
+# REDIS related settings 
+#REDIS_HOST = 'ec2-13-233-35-20.ap-south-1.compute.amazonaws.com'
+#REDIS_PORT = '6379'
+#BROKER_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
+#BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600} 
+#CELERY_RESULT_BACKEND = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
+
+#Celery Broker
+#CELERY_BROKER_URL = 'amqp://ec2-13-233-35-20.ap-south-1.compute.amazonaws.com'
+
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
+CELERY_TIMEZONE = 'Asia/Kolkata'
+CELERY_BEAT_SCHEDULE = {
+    'send-report-every-single-minute':{
+        'task': 'reports.get_users_data',
+        'schedule':crontab(minute=10,hour=0),
+    },
+}
+
+#app.conf.beat_schedule = {
+#    'send-report-every-single-minute': {
+#        'task': 'publish.tasks.send_view_count_report',
+#        'schedule': crontab(minute='*/5'),  # change to `crontab(minute=0, hour=0)` if you want it to run daily at m$
+#    },
+#}
