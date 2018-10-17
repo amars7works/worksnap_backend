@@ -19,7 +19,8 @@ from reports.models import ProjectsList,\
 							UsersSummaryReport,\
 							HolidayList,\
 							UserDailyReport,\
-							UserProfile
+							UserProfile,\
+							RemainingAccruedLeaves
 # Create your views here.
 
 def user_register(request):
@@ -507,6 +508,8 @@ def show_data(sheet1,user_names,headers,user_summary,cell_format):
 			leave_dates = change_date_format(user_data.get('Leave Dates',"-"))
 			sheet1.write(row_data,column_data,str(leave_dates),cell_format)
 			column_data = column_data + 1
+			sheet1.write(row_data,column_data,user_data.get('No of remainig leaves',''),cell_format)
+			column_data = column_data + 1
 			sheet1.write(row_data,column_data,user_data.get('Total time to work',"-"),cell_format)
 			column_data = column_data + 1
 			sheet1.write(row_data,column_data,user_data.get('Total time worked',"-"),cell_format)
@@ -520,6 +523,28 @@ def show_data(sheet1,user_names,headers,user_summary,cell_format):
 			column_data = column_data + 1
 			row_data = row_data + 1
 			column_data = 1
+
+def get_remaining_leaves():
+	'''
+		this function will return the remaing leaves of all employees
+	'''
+	remaining_leaves = RemainingAccruedLeaves.objects.all()
+	# print(reminig_leaves)
+	# ordered = sorted(reminig_leaves, key=operator.attrgetter('user'))
+	# print(ordered)
+	return remaining_leaves
+
+def store_remaining_leaves(sheet1,remainig_leave,user_names):
+	row_data = 0
+	column_data = 5
+	user_names_copy = user_names.copy()
+	if len(user_names_copy) > 1:
+		user_names_copy.remove('s7_worksnaps')
+	for i,username in enumerate(user_names_copy):
+		row_data = row_data + 1
+		for single_user in remainig_leave:
+			if username == single_user.user.username:
+				sheet1.write(row_data,column_data,single_user.remaining_leaves)
 
 def show_data_in_excel(request):
 	month = request.GET.get("month",0)
@@ -539,7 +564,7 @@ def show_data_in_excel(request):
 	response['Content-Disposition'] = "attachment; filename=Worksnaps Report.xlsx"
 	book = Workbook(response,{'in_memory': True})
 	headers = ['No of working days in September','No of days worked','No of leaves','Leave Dates',
-	'Total time to work','Total time worked','Worked on weekend days or holidays',
+	'No of remaining leaves','Total time to work','Total time worked','Worked on weekend days or holidays',
 	'Time Worked on weekend days','Dates Worked on weekend days']
 	
 	sheet1 = book.add_worksheet('Sep-2018')
@@ -553,6 +578,14 @@ def show_data_in_excel(request):
 	username_excel(sheet1,user_names,cell_format)
 	headers_data(sheet1,headers,cell_format)
 	show_data(sheet1,user_names,headers,user_summary,cell_format)
+	remainig_leave = get_remaining_leaves()
+	user_names = get_user_names()
+	if user_name == "all":
+		store_remaining_leaves(sheet1,remainig_leave,user_names)
+	else:
+		user_names = []
+		user_names.append(user_name)
+		store_remaining_leaves(sheet1,remainig_leave,user_names)
 	book.close()
 
 	return response

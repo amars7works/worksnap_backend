@@ -141,7 +141,7 @@ CELERY_TIMEZONE = 'Asia/Kolkata'
 CELERY_BEAT_SCHEDULE = {
     'send-report-every-single-minute':{
         'task': 'reports.get_users_data',
-        'schedule':crontab(minute=10,hour=0),
+        'schedule':crontab(minute=10,hour=1),
     },
 }
 
