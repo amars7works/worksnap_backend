@@ -63,7 +63,7 @@ class UserProfile(models.Model):
 class RemainingAccruedLeaves(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	remaining_leaves = models.FloatField()
+	till_month = models.IntegerField(null=True,blank=True)
 
 	def __str__(self):
-		return "%s"%(self.user)	
-	
+		return "%s"%(self.user)

@@ -445,13 +445,6 @@ def users_summary(from_date,to_date,year,month,user_name):
 		#		print("dddddddd")
 		#except:
 		#	pass
-		if user_name == "Bhanu Chandar Bala":
-			leave_dates = []
-		elif user_name == "Sai Bhaskar Ravuri":
-			date_obj = date(2018,9,14)
-			leave_dates = [date_obj]
-		elif user_name == "Sushmasridurga DONTHAMSETTI":
-                        leave_dates = []
 		data = {
 		'Name': user_name,
 		'No of leaves' :  len(leave_dates),
