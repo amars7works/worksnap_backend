@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'graphene_django',
     'reports',
+    'reports_2',
 ]
 
 MIDDLEWARE = [
@@ -143,6 +144,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'reports.get_users_data',
         'schedule':crontab(minute=10,hour=1),
     },
+	'update-employee-leaves':{
+	'task':'reports_2.update_employee_leaves',
+	'schedule':crontab(0,3,day_of_month='1')
+	},
 }
 
 #app.conf.beat_schedule = {
