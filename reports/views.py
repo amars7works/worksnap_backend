@@ -108,7 +108,7 @@ def get_data(url):
 	request_data = requests.get(project_url,headers=headers)
 	# print(request_data,"project data")
 	request_data_json = request_data.json()
-	
+
 	return request_data_json
 
 def get_summary(user_id,from_date,to_date):
@@ -409,9 +409,12 @@ def users_summary(from_date,to_date,year,month,user_name):
 		user_names = []
 		user_names.append(user_name)
 	data2 = {}
-	wfh_data = parse_xml_data(user_names)
+	month_daya,monthrang = monthrange(int(year),int(month))
+	wfh_data = parse_xml_data(user_names,monthrang,int(month),int(year))
+	print(wfh_data,"wfromdata")
 	user_names.remove('s7_worksnaps')
 	for user_name in user_names:
+		print(user_name,"user name")
 		user_summary_qs = UsersSummaryReport.objects.filter(
 			Q(date__gte=from_date) & Q(date__lte=to_date),user_name=user_name)
 		# print(user_summary_qs,"user summary list")
@@ -419,25 +422,45 @@ def users_summary(from_date,to_date,year,month,user_name):
 		no_dates = []
 		partial_work_dates = []
 		extra_work_dates = []
+		worked_less = []
 		user_wfh = wfh_data.get(user_name)
+		user_summary_date_time = {}
 		for single_date in user_summary_qs:
 			time_done = single_date.duration
 			total_duration.append(int(time_done))
 			qs_date = single_date.date
-			qs_date_str = convert_date_datetime_str(qs_date)
+			if not user_summary_date_time.get(qs_date):
+				user_summary_date_time[qs_date] = time_done
+			else:
+				user_summary_date_time[qs_date] = int(time_done) + int(
+									user_summary_date_time[qs_date])
+		#print(user_summary_date_time,"hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
+		for key,time_done_per_day in user_summary_date_time.items():
+			qs_date_str = convert_date_datetime_str(key)
 			user_wfh_date = user_wfh.get(qs_date_str)
 			if user_wfh_date:
 				user_wfh_ips = user_wfh_date.get('ip_address')
+			else:
+				user_wfh_ips = None
 			if user_wfh_ips:
 				wfh_time = len(user_wfh_ips) * 10
 			else:
 				wfh_time = 0
-			if int(time_done) > 300 and wfh_time != time_done:
-				no_dates.append(single_date.date)
-			if int(time_done) >= 300 and int(time_done) < 480:
-				partial_work_dates.append(single_date.date)
-			if int(time_done) >= 480:
-				extra_work_dates.append(single_date.date)
+			if (int(time_done_per_day) > 300 and int(wfh_time) != int(time_done_per_day)):
+				no_dates.append(key)
+			if int(time_done_per_day) >= 300 and int(time_done_per_day) < 480:
+				partial_time = qs_date_str+'-->'+str(int(time_done_per_day))
+				partial_work_dates.append(partial_time)
+				no_dates.append(key)
+			if int(time_done_per_day) >= 480:
+				extra_time = qs_date_str+'-->'+str(int(time_done_per_day))
+				extra_work_dates.append(extra_time)
+				no_dates.append(key)
+			if int(time_done_per_day) < 300:
+				worked_less.append(key)
+		#print(user_name)
+		#print(partial_work_dates,"partial work dates")
+		#get number of working days
 		no_working_days,month_start_day,days_in_month = working_days(year,month,from_date,to_date)
 		sunday_start = 7-month_start_day
 		list_hanig_sundays = []
@@ -445,12 +468,15 @@ def users_summary(from_date,to_date,year,month,user_name):
 		while sunday_start <= 31:
 			list_hanig_sundays.append(sunday_start)
 			sunday_start = sunday_start + 7
+		# create datetime obj of sundays and saturdays
 		list_sun_sat = create_datetime_obj(list_hanig_sundays,year,month)
+		# get list of holidays
 		list_holidays = get_this_month_holidays(from_date,to_date)
 		if list_holidays not in list_sun_sat:
 			list_sun_sat.extend(list_holidays)
 
 		month_holidays = list(set(list_sun_sat))
+		# create whole month datetime obj
 		whole_month_days = create_month_days(days_in_month,year,month)
 
 		no_dates_holidays = []
@@ -465,6 +491,7 @@ def users_summary(from_date,to_date,year,month,user_name):
 			joined_date = None
 			logging.exception("message")
 		leave_dates = remove_dates_before_joined(leave_dates,joined_date)
+		no_dates.extend(worked_less)
 		user_worked_as_per_working_days = list(set(no_dates)-set(month_holidays))
 
 		worked_weekend_days = worked_on_weekenddays(user_worked_as_per_working_days,no_dates)
@@ -477,71 +504,75 @@ def users_summary(from_date,to_date,year,month,user_name):
 			extra_time_worked = 0
 		total_time_to_work = (no_working_days-len(leave_dates)) * 480
 		total_time_worked = sum(total_duration)
-		if (user_name == 'Mohan Krishna Y' or
-			user_name == 'Mohiuddin Mohammed' or
-			user_name == 'Narendra Babu Ballilpalli' or
-			user_name == 'Naveen Kumar Katta' or
-			user_name == 'Vikash Babu Bendalam'):
+		if (user_name	):
 			#pass
 			user = User.objects.get(username=user_name)
 			try:
 				total_leaves_qs = TotalLeaves.objects.get(user=user)
 				total_leaves_data = ast.literal_eval(total_leaves_qs.data)
-				if not total_leaves_data.get(str(month)):
-					total_leaves_data[month] = {}
-					total_leaves_data[month]['month'] = month
-					total_leaves_data[month]['total_leaves'] = len(leave_dates)
-					accrued_leaves = total_leaves_data[str(int(month)-1)]['accrued_leaves'] + 2
+				year_month_data = "{}-{}".format(year,month)
+				to_date_obj = convert_date_str_datetime(to_date)
+				if (not total_leaves_data.get(str(year_month_data)) and
+					joined_date < to_date_obj.date()):
+					year_month = "{}-{}".format(year,month)
+					total_leaves_data[year_month] = {}
+					total_leaves_data[year_month]['month'] = month
+					total_leaves_data[year_month]['total_leaves'] = len(leave_dates)
+					if int(month) == 1:
+						last_month = "{}-{}".format(int(year)-1,12)
+					else:
+						last_month = "{}-{}".format(year,int(month)-1)
+					accrued_leaves = total_leaves_data[str(last_month)]['accrued_leaves'] + 2
 					if len(leave_dates) == 0:
-						total_leaves_data[month]['paid_leaves'] = 0
-						total_leaves_data[month]['unpaid_leaves'] = 0
+						total_leaves_data[year_month]['paid_leaves'] = 0
+						total_leaves_data[year_month]['unpaid_leaves'] = 0
 					elif len(leave_dates) > accrued_leaves:
 						unpaid_leaves = len(leave_dates) - accrued_leaves
-						total_leaves_data[month]['unpaid_leaves'] = unpaid_leaves
-						total_leaves_data[month]['paid_leaves'] = accrued_leaves
+						total_leaves_data[year_month]['unpaid_leaves'] = unpaid_leaves
+						total_leaves_data[year_month]['paid_leaves'] = accrued_leaves
 						accrued_leaves = 0
 					elif accrued_leaves >= len(leave_dates):
-						total_leaves_data[month]['unpaid_leaves'] = 0
-						total_leaves_data[month]['paid_leaves'] = len(leave_dates)
+						total_leaves_data[year_month]['unpaid_leaves'] = 0
+						total_leaves_data[year_month]['paid_leaves'] = len(leave_dates)
 						accrued_leaves = accrued_leaves - len(leave_dates)
-					total_leaves_data[month]['accrued_leaves'] = accrued_leaves
+					total_leaves_data[year_month]['accrued_leaves'] = accrued_leaves
 					total_leaves_qs.data = total_leaves_data
 					total_leaves_qs.save()
 			except TotalLeaves.DoesNotExist as e:
 				to_date_obj = convert_date_str_datetime(to_date)
 				if joined_date < to_date_obj.date():
 					#logging.exception("message")
+					year_month = "{}-{}".format(year,month)
 					total_leaves_dict = {}
-					total_leaves_dict[month] = {}
-					total_leaves_dict[month]['month'] = month
-					total_leaves_dict[month]['total_leaves'] = len(leave_dates)
-					if joined_date.day <= 7:
-						accrued_leaves = 2
-					elif joined_date.day >= 8 and joined_date.day<= 22:
-						accrued_leaves = 1
-					else:
-						accrued_leaves = 0
+					total_leaves_dict[year_month] = {}
+					total_leaves_dict[year_month]['month'] = month
+					total_leaves_dict[year_month]['total_leaves'] = len(leave_dates)
+					joined_day = joined_date.day
+					accrued_per_day = 2/days_in_month
+					accrued_leaves = ((days_in_month - joined_day)*(accrued_per_day))
 					if len(leave_dates) == 0:
-						total_leaves_dict[month]['paid_leaves'] = 0
-						total_leaves_dict[month]['unpaid_leaves'] = 0
+						total_leaves_dict[year_month]['paid_leaves'] = 0
+						total_leaves_dict[year_month]['unpaid_leaves'] = 0
 					elif len(leave_dates) > accrued_leaves:
 						unpaid_leaves = len(leave_dates) - accrued_leaves
-						total_leaves_dict[month]['unpaid_leaves'] = unpaid_leaves
-						total_leaves_dict[month]['paid_leaves'] = accrued_leaves
+						total_leaves_dict[year_month]['unpaid_leaves'] = unpaid_leaves
+						total_leaves_dict[year_month]['paid_leaves'] = accrued_leaves
 						accrued_leaves = 0
 					elif accrued_leaves > len(leave_dates):
-						total_leaves_dict[month]['unpaid_leaves'] = 0
-						total_leaves_dict[month]['paid_leaves'] = accrued_leaves
-					total_leaves_dict[month]['accrued_leaves'] = accrued_leaves
+						total_leaves_dict[year_month]['unpaid_leaves'] = 0
+						total_leaves_dict[year_month]['paid_leaves'] = accrued_leaves
+					total_leaves_dict[year_month]['accrued_leaves'] = accrued_leaves
 					TotalLeaves.objects.create(user=user,data=total_leaves_dict)
 
 		data = {
 		'Name': user_name,
-		'No of leaves' :  len(leave_dates),
+		'No of leaves' : len(leave_dates),
 		'Leave Dates' : leave_dates,
 		'No of working days': no_working_days,
 		'No of days worked': len(set(user_worked_as_per_working_days)),
-		'For Month':'August',
+		'Partial work':partial_work_dates,
+		'Extra work':extra_work_dates,
+		'For Month': month,
 		'Worked on weekend days or holidays':worked_on_weekend_days_holiday,
 		'Dates Worked on weekend days':worked_weekend_days,
 		'Time Worked on weekend days':extra_time_worked,
@@ -551,10 +582,19 @@ def users_summary(from_date,to_date,year,month,user_name):
 		data2[user_name] = data
 	return data2,user_names
 
-def username_excel(sheet1,user_names,cell_format):
+def username_excel(sheet1,user_names,cell_format,user_summary):
 	row = 1
 	column = 0
+	updated_user_name = []
 	for i,single_user in enumerate(sorted(user_names)):
+		print(single_user,"user name")
+		#print(type(user_summary),"user summary")
+		single_user_summary = user_summary.get(single_user)
+		if single_user_summary:
+			user_worked_days = single_user_summary.get('No of days worked')
+
+		else:
+			user_worked_days = None
 		if (single_user != "Ikkurthi Manikanta" and 
 			single_user != "Saumya Garg" 
 			and single_user != "s7_worksnaps"
@@ -562,9 +602,11 @@ def username_excel(sheet1,user_names,cell_format):
 			single_user != "Sai Bhaskar Ravuri" and
 			single_user != "Vignan Akoju" and
 			single_user != "Vinod Kumar Kurra" and
-			single_user != "suresh kanchumati"):
+			single_user != "suresh kanchumati" and user_worked_days):
 			sheet1.write(row,column,single_user)
+			updated_user_name.append(single_user)
 			row = row + 1
+	return updated_user_name
 
 def headers_data(sheet1,headers,cell_format):
 	row = 0
@@ -589,6 +631,7 @@ def show_data(sheet1,user_names,headers,user_summary,cell_format):
 	row_data = 1
 	column_data = 1
 	for key, user_data in sorted(user_summary.items()):
+		user_data_worked = user_data.get('No of days worked')
 		if (key != "Ikkurthi Manikanta" 
 			and key != "Saumya Garg" 
 			and key != "s7_worksnaps"
@@ -596,7 +639,7 @@ def show_data(sheet1,user_names,headers,user_summary,cell_format):
                         key != "Sai Bhaskar Ravuri" and
                         key != "Vignan Akoju" and
                         key != "Vinod Kumar Kurra" and
-                       	key != "suresh kanchumati"):
+                       	key != "suresh kanchumati" and user_data_worked):
 			sheet1.write(row_data,column_data,user_data.get('Bank Account Nos',''),cell_format)
 			column_data = column_data + 1
 			sheet1.write(row_data,column_data,user_data.get('No of working days',"-"),cell_format)
@@ -621,6 +664,12 @@ def show_data(sheet1,user_names,headers,user_summary,cell_format):
 			weekend_days = change_date_format(user_data.get('Dates Worked on weekend days',"-"))
 			sheet1.write(row_data,column_data,str(weekend_days),cell_format)
 			column_data = column_data + 1
+			partial_work = user_data.get('Partial work','-')
+			sheet1.write(row_data,column_data,str(partial_work))
+			column_data = column_data + 1
+			extra_work = user_data.get('Extra work','-')
+			sheet1.write(row_data,column_data,str(extra_work))
+			column_data = column_data + 1
 			row_data = row_data + 1
 			column_data = 1
 
@@ -628,7 +677,7 @@ def get_remaining_leaves():
 	'''
 		this function will return the remaing leaves of all employees
 	'''
-	remaining_leaves = RemainingAccruedLeaves.objects.all()
+	remaining_leaves = TotalLeaves.objects.all()
 	# print(reminig_leaves)
 	# ordered = sorted(reminig_leaves, key=operator.attrgetter('user'))
 	# print(ordered)
@@ -641,46 +690,65 @@ def get_bankaccount_nos():
 	account_nos = BankAccountNumber.objects.all()
 	return account_nos
 
-def store_remaining_leaves(sheet1,remainig_leave,user_names):
+def store_remaining_leaves(sheet1,remainig_leave,user_names,month,year):
 	row_data = 0
 	column_data = 6
+	year_month = "{}-{}".format(year,month)
 	user_names_copy = user_names.copy()
-	if len(user_names_copy) > 1:
+	if len(user_names_copy) > 1 and 's7_worksnaps' in user_names_copy:
 		user_names_copy.remove('s7_worksnaps')
 	for i,username in enumerate(user_names_copy):
 		row_data = row_data + 1
-		for single_user in remainig_leave:
-			if username == single_user.user.username:
-				sheet1.write(row_data,column_data,single_user.remaining_leaves)
+		user = User.objects.get(username=username)
+		try:
+			total_leaves = TotalLeaves.objects.get(user=user)
+		except TotalLeaves.DoesNotExist as e:
+			total_leaves = None
+		if total_leaves:
+			accured_leaves_month = ast.literal_eval(total_leaves.data).get(year_month,None)
+		else:
+			accured_leaves_month = None
+		if accured_leaves_month:
+			accrued_leaves = accured_leaves_month.get('accrued_leaves')
+			loss_of_pay = accured_leaves_month.get('unpaid_leaves')
+			sheet1.write(row_data,column_data,accrued_leaves)
+			sheet1.write(row_data,column_data+10,loss_of_pay)
 
 def wfh_data_refined(data):
 	data_in_list = []
+	offline_dates = []
 	for date,single_data in data.items():
 		if single_data.get('ip_address'):
 			no_min = str(len(single_data.get('ip_address'))*10)
 			user_date = single_data.get('date')
-			data_in_str = user_date,'-->',no_min
+			data_in_str = user_date+'-->'+no_min
 			data_in_list.append(data_in_str)
-	return data_in_list
+		if single_data.get('offline_time'):
+			no_min = str(len(single_data.get('offline_time'))*10)
+			user_date = single_data.get('date')
+			data_in_str = user_date+'-->'+no_min
+			offline_dates.append(data_in_str)
+	return data_in_list,offline_dates
 
 def store_wfh_data(sheet1,users_wfh_data,user_names):
 	row_data = 0
-	column_data = 12
+	column_data = 14
 	user_names_copy = user_names.copy()
-	if len(user_names_copy) > 1:
+	if len(user_names_copy) > 1 and 's7_worksnaps' in user_names_copy:
 		user_names_copy.remove('s7_worksnaps')
 	for i,username in enumerate(user_names_copy):
 		row_data = row_data + 1
 		single_user_data = users_wfh_data.get(username)
 		if single_user_data:
-			final_data = wfh_data_refined(single_user_data)
+			final_data,offline_time = wfh_data_refined(single_user_data)
 			sheet1.write(row_data,column_data,str(final_data))
+			sheet1.write(row_data,column_data+1,str(offline_time))
 
 def store_bankaccount_nos(sheet1,account_nos,user_names):
         row_data = 0
         column_data = 1
         user_names_copy = user_names.copy()
-        if len(user_names_copy) > 1:
+        if len(user_names_copy) > 1 and 's7_worksnaps' in user_names_copy:
                 user_names_copy.remove('s7_worksnaps')
         for i,username in enumerate(user_names_copy):
                 row_data = row_data + 1
@@ -694,6 +762,7 @@ def show_data_in_excel(request):
 	from_date = request.GET.get("from_date",0)
 	to_date = request.GET.get("to_date",0)
 	user_name = request.GET.get("user_name",0)
+	month_start,monthrang = monthrange(int(year),int(month))
 	if user_name == "all":
 		user_summary,user_names = users_summary(from_date,to_date,year,month,user_name)
 	else:
@@ -706,10 +775,11 @@ def show_data_in_excel(request):
 	response['Content-Disposition'] = "attachment; filename=Worksnaps Report.xlsx"
 	book = Workbook(response,{'in_memory': True})
 	headers = ['Bank Account Nos','No of working days','No of days worked','No of leaves','Leave Dates',
-	'No of remaining leaves','Total time to work','Total time worked','Worked on weekend days or holidays',
-	'Time Worked on weekend days','Dates Worked on weekend days','Work from home dates and time']
+	'No of Accrued_leaves','Total time to work','Total time worked','Worked on weekend days or holidays',
+	'Time Worked on weekend days','Dates Worked on weekend days','Partial work','Extra work',
+	'Work from home dates and time','Offline time','Loss of pay days']
 	
-	sheet1 = book.add_worksheet('Sep-2018')
+	sheet1 = book.add_worksheet('{}-{}'.format(month,year))
 	sheet1.freeze_panes(1, 1)
 	sheet1.set_column('A:A',25)
 	sheet1.set_row(0, 40)
@@ -717,23 +787,24 @@ def show_data_in_excel(request):
 	cell_format = book.add_format()
 	cell_format.set_text_wrap()
 	cell_format.set_align('left')
-	username_excel(sheet1,user_names,cell_format)
+	#print(user_summary,"user summary")
+	updated_user_name = username_excel(sheet1,user_names,cell_format,user_summary)
 	headers_data(sheet1,headers,cell_format)
 	show_data(sheet1,user_names,headers,user_summary,cell_format)
 	remainig_leave = get_remaining_leaves()
 	user_names = get_user_names()
 	account_nos = get_bankaccount_nos()
 	if user_name == "all":
-		store_remaining_leaves(sheet1,remainig_leave,user_names)
-		store_bankaccount_nos(sheet1,account_nos,user_names)
-		users_wfh_data = parse_xml_data(user_names)
-		store_wfh_data(sheet1,users_wfh_data,user_names)
+		store_remaining_leaves(sheet1,remainig_leave,updated_user_name,month,year)
+		store_bankaccount_nos(sheet1,account_nos,updated_user_name)
+		users_wfh_data = parse_xml_data(updated_user_name,monthrang,month,year)
+		store_wfh_data(sheet1,users_wfh_data,updated_user_name)
 	else:
 		user_names = []
 		user_names.append(user_name)
-		store_remaining_leaves(sheet1,remainig_leave,user_names)
+		store_remaining_leaves(sheet1,remainig_leave,user_names,month,year)
 		store_bankaccount_nos(sheet1,account_nos,user_names)
-		users_wfh_data = parse_xml_data(user_names)
+		users_wfh_data = parse_xml_data(user_names,monthrang,month,year)
 		store_wfh_data(sheet1,users_wfh_data,user_names)
 	book.close()
 
@@ -762,9 +833,10 @@ def store_daily_report(request):
 		all_users=get_user_names()
 		return render(request,'dailyreport.html',{'all_users':all_users})
 
-def parse_xml_data(user_names):
-	from_date = datetime(2018,12,1,0,0,0)
-	to_date = datetime(2018,12,31,0,0,0)
+def parse_xml_data(user_names,monthrange,selected_month,year):
+	end_date = int(monthrange)
+	from_date = datetime(int(year),int(selected_month),1,0,0,0)
+	to_date = datetime(int(year),int(selected_month),end_date,0,0,0)
 	work_from_home = {}
 	for single_user in user_names:
 		work_from_home[single_user] = {}
@@ -780,13 +852,18 @@ def parse_xml_data(user_names):
 				work_from_home[single_user][from_date_str] = {}
 				work_from_home[single_user][from_date_str]['date'] = from_date_str
 				work_from_home[single_user][from_date_str]['ip_address'] = []
+				work_from_home[single_user][from_date_str]['offline_time'] = []
 				work_from_home[single_user][from_date_str]['user'] = single_user
 				for single_data in xml_data_qs:
 					str_xml_data = single_data.xml_data
 					root_xml = ET.fromstring(str_xml_data)
 					office_ip = root_xml[0][10].text
 					if office_ip != '183.82.115.50' and office_ip != None:
-						work_from_home[single_user][from_date_str]['ip_address'].append(office_ip)
+						work_from_home[single_user][from_date_str]['ip_address'].append(
+												office_ip)
+					elif office_ip == None:
+						work_from_home[single_user][from_date_str]['offline_time'].append(
+													office_ip)
 			current_date = current_date + timedelta(days=1)
 	#print(work_from_home)
 	return work_from_home
