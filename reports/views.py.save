@@ -1,4 +1,3 @@
-
 import time
 import requests
 import base64
@@ -34,11 +33,9 @@ from reports.models import ProjectsList,\
 							RemainingAccruedLeaves,\
 							UserXmldata,\
 							TotalLeaves
-
 from reports_2.models import BankAccountNumber
 
-from reports.serializers import UsersSummaryReportSerializers
-
+from reports.serializers import UsersSummaryReportSeriali
 
 # Create your views here.
 
@@ -298,11 +295,9 @@ def working_days(year,month,from_date,to_date):
 	elif monthrang[0] == 5 and monthrang[1] >= 30:
 		no_of_working_days =  monthrang[1] - 6
 	elif monthrang[0] == 0:
-		no_of_working_days =  monthrang[1] - 5
+		no_of_working_days =  monthrang[1] - 6
 	else:
 		no_of_working_days = monthrang[1] - 5
-	if month == '4' and year == '2019':
-		no_of_working_days = no_of_working_days + 1
 	holidays = HolidayList.objects.filter(
 		Q(holiday_date__gte=from_date) & Q(holiday_date__lte=to_date))
 	no_holidays = len(holidays)
@@ -315,8 +310,7 @@ def create_datetime_obj(sunday_date_str,year,month):
 	'''
 	sun_sat_dates_datetime = []
 	secons_sat = sunday_date_str[1]
-	if year != '2019' and month != '4':
-		sun_sat_dates_datetime.append(date(int(year),int(month),secons_sat-1))
+	sun_sat_dates_datetime.append(date(int(year),int(month),secons_sat-1))
 	if month == '6':
 		sunday_date_srt = sunday_date_str.pop(-1)
 	if month == '2' and sunday_date_str[-1] >= 30:
@@ -431,10 +425,10 @@ def users_summary(from_date,to_date,year,month,user_name):
 	wfh_data = parse_xml_data(user_names,monthrang,int(month),int(year))
 	user_names.remove('s7_worksnaps')
 	for user_name in user_names:
+		print(user_name,"user name")
 		user_summary_qs = UsersSummaryReport.objects.filter(
 			Q(date__gte=from_date) & Q(date__lte=to_date),user_name=user_name)
-		print(user_name,"user")
-		print(user_summary_qs,"qs")
+		# print(user_summary_qs,"user summary list")
 		total_duration = []
 		no_dates = []
 		partial_work_dates = []
@@ -451,14 +445,10 @@ def users_summary(from_date,to_date,year,month,user_name):
 			else:
 				user_summary_date_time[qs_date] = int(time_done) + int(
 									user_summary_date_time[qs_date])
-
 		#print(user_summary_date_time,"hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
 		for key,time_done_per_day in user_summary_date_time.items():
 			qs_date_str = convert_date_datetime_str(key)
-			if user_wfh:
-				user_wfh_date = user_wfh.get(qs_date_str)
-			else:
-				user_wfh_date = None
+			user_wfh_date = user_wfh.get(qs_date_str)
 			if user_wfh_date:
 				user_wfh_ips = user_wfh_date.get('ip_address')
 			else:
@@ -479,6 +469,7 @@ def users_summary(from_date,to_date,year,month,user_name):
 				no_dates.append(key)
 			if int(time_done_per_day) < 300:
 				worked_less.append(key)
+		#print(user_name)
 		#print(partial_work_dates,"partial work dates")
 		#get number of working days
 		no_working_days,month_start_day,days_in_month = working_days(year,month,from_date,to_date)
@@ -524,7 +515,7 @@ def users_summary(from_date,to_date,year,month,user_name):
 			extra_time_worked = 0
 		total_time_to_work = (no_working_days-len(leave_dates)) * 480
 		total_time_worked = sum(total_duration)
-		if (user_name):
+		if (user_name	):
 			#pass
 			user = User.objects.get(username=user_name)
 			try:
@@ -598,11 +589,8 @@ def users_summary(from_date,to_date,year,month,user_name):
 		'Time Worked on weekend days':extra_time_worked,
 		"Total time to work":round((total_time_to_work)/(60),0),
 		"Total time worked":round((total_time_worked)/(60),0),
-		"worked_less_than_8_hours": len(partial_work_dates),
-		"worked_alteast_8_hours": len(extra_work_dates),
 		}
 		data2[user_name] = data
-
 	return data2,user_names
 
 def username_excel(sheet1,user_names,cell_format,user_summary):
@@ -617,8 +605,6 @@ def username_excel(sheet1,user_names,cell_format,user_summary):
 
 		else:
 			user_worked_days = None
-		if single_user == 'Mounika NagaHarish':
-			single_user = 'P Mounika'
 		if (single_user != "Ikkurthi Manikanta" and 
 			single_user != "Saumya Garg" 
 			and single_user != "s7_worksnaps"
@@ -628,8 +614,6 @@ def username_excel(sheet1,user_names,cell_format,user_summary):
 			single_user != "Vinod Kumar Kurra" and
 			single_user != "suresh kanchumati" and user_worked_days):
 			sheet1.write(row,column,single_user)
-			if single_user == 'P Mounika':
-				single_user = 'Mounika NagaHarish'
 			updated_user_name.append(single_user)
 			row = row + 1
 	return updated_user_name
@@ -655,7 +639,7 @@ def show_data(sheet1,user_names,headers,user_summary,cell_format):
 	row = 1
 	column = 0
 	row_data = 1
-	column_data = 2
+	column_data = 1
 	for key, user_data in sorted(user_summary.items()):
 		user_data_worked = user_data.get('No of days worked')
 		if (key != "Ikkurthi Manikanta" 
@@ -696,12 +680,8 @@ def show_data(sheet1,user_names,headers,user_summary,cell_format):
 			extra_work = user_data.get('Extra work','-')
 			sheet1.write(row_data,column_data,str(extra_work))
 			column_data = column_data + 1
-			sheet1.write(row_data,column_data,user_data.get('worked_less_than_8_hours',"-"),cell_format)
-			column_data = column_data + 1
-			sheet1.write(row_data,column_data,user_data.get('worked_alteast_8_hours',"-"),cell_format)
-			column_data = column_data + 1
 			row_data = row_data + 1
-			column_data = 2
+			column_data = 1
 
 def get_remaining_leaves():
 	'''
@@ -722,9 +702,7 @@ def get_bankaccount_nos():
 
 def store_remaining_leaves(sheet1,remainig_leave,user_names,month,year):
 	row_data = 0
-	column_data = 7
-	monthrang = monthrange(int(year),int(month))
-	no_days_month = monthrang[1]
+	column_data = 6
 	year_month = "{}-{}".format(year,month)
 	user_names_copy = user_names.copy()
 	if len(user_names_copy) > 1 and 's7_worksnaps' in user_names_copy:
@@ -736,18 +714,6 @@ def store_remaining_leaves(sheet1,remainig_leave,user_names,month,year):
 			total_leaves = TotalLeaves.objects.get(user=user)
 		except TotalLeaves.DoesNotExist as e:
 			total_leaves = None
-		try:
-			user_profile_qs = UserProfile.objects.get(user_name=username)
-			joineddate = user_profile_qs.joined_date
-			joined_year = joineddate.year
-			joined_month = joineddate.month
-			joined_day = joineddate.day
-		except:
-			joined_year = None
-			joined_month = None
-			joined_day = None
-		if joined_day and (joined_year == int(year) and joined_month == int(month)):
-			no_days_month = no_days_month - joined_day + 1
 		if total_leaves:
 			accured_leaves_month = ast.literal_eval(total_leaves.data).get(year_month,None)
 		else:
@@ -755,15 +721,8 @@ def store_remaining_leaves(sheet1,remainig_leave,user_names,month,year):
 		if accured_leaves_month:
 			accrued_leaves = accured_leaves_month.get('accrued_leaves')
 			loss_of_pay = accured_leaves_month.get('unpaid_leaves')
-			salary_to_pay = no_days_month - loss_of_pay
 			sheet1.write(row_data,column_data,accrued_leaves)
-			sheet1.write(row_data,column_data+12,loss_of_pay)
-			sheet1.write(row_data,2,salary_to_pay)
-		joined_year = None
-		joined_month = None
-		joined_day = None
-		no_days_month = monthrang[1]
-
+			sheet1.write(row_data,column_data+10,loss_of_pay)
 
 def wfh_data_refined(data):
 	data_in_list = []
@@ -783,7 +742,7 @@ def wfh_data_refined(data):
 
 def store_wfh_data(sheet1,users_wfh_data,user_names):
 	row_data = 0
-	column_data = 17
+	column_data = 14
 	user_names_copy = user_names.copy()
 	if len(user_names_copy) > 1 and 's7_worksnaps' in user_names_copy:
 		user_names_copy.remove('s7_worksnaps')
@@ -816,6 +775,7 @@ def show_data_in_excel(request):
 	month_start,monthrang = monthrange(int(year),int(month))
 	if user_name == "all":
 		user_summary,user_names = users_summary(from_date,to_date,year,month,user_name)
+		print(user_summary,"user summary")
 	else:
 		user_summary,user_names = users_summary(from_date,to_date,year,month,user_name)
 	# print(user_summary,"Data")
@@ -825,10 +785,9 @@ def show_data_in_excel(request):
 	response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 	response['Content-Disposition'] = "attachment; filename=Worksnaps Report.xlsx"
 	book = Workbook(response,{'in_memory': True})
-	headers = ['Bank Account Nos','No of days salary to be paid','No of working days','No of days worked','No of leaves','Leave Dates',
+	headers = ['Bank Account Nos','No of working days','No of days worked','No of leaves','Leave Dates',
 	'No of Accrued_leaves','Total time to work','Total time worked','Worked on weekend days or holidays',
 	'Time Worked on weekend days','Dates Worked on weekend days','Partial work','Extra work',
-        'Total No of days worked less than 8 hours','Total no of days worked atleast 8 hours',
 	'Work from home dates and time','Offline time','Loss of pay days']
 	
 	sheet1 = book.add_worksheet('{}-{}'.format(month,year))
@@ -839,6 +798,7 @@ def show_data_in_excel(request):
 	cell_format = book.add_format()
 	cell_format.set_text_wrap()
 	cell_format.set_align('left')
+	#print(user_summary,"user summary")
 	updated_user_name = username_excel(sheet1,user_names,cell_format,user_summary)
 	headers_data(sheet1,headers,cell_format)
 	show_data(sheet1,user_names,headers,user_summary,cell_format)
@@ -850,7 +810,6 @@ def show_data_in_excel(request):
 		store_bankaccount_nos(sheet1,account_nos,updated_user_name)
 		users_wfh_data = parse_xml_data(updated_user_name,monthrang,month,year)
 		store_wfh_data(sheet1,users_wfh_data,updated_user_name)
-		
 	else:
 		user_names = []
 		user_names.append(user_name)
@@ -925,10 +884,7 @@ class usersummary(generics.RetrieveUpdateDestroyAPIView):
 	serializer_class = UsersSummaryReportSerializers
 
 	def get(self,request,*args,**kwargs):
-	    # serializer = UsersSummaryReportSerializers(self.get_queryset(),many=True)
-	    # data= serializer.data[:]
-	    # print(data,"data")
-	    # return Response(data,status=status.HTTP_200_OK)
+	  
 		summmary = {
 					  'Lenin Kumar': {
 					    'No of working days': 25,

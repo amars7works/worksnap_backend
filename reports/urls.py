@@ -20,4 +20,6 @@ urlpatterns = [
     url(r'^user_register/', views.user_register,
         name='user_register'),
     url(r'^register_form/', views.registration_html,name='register_form'),
+     url(r'^summary_report/', views.usersummary.as_view(),name='summary_report'),
+
 	]
