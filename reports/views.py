@@ -433,8 +433,6 @@ def users_summary(from_date,to_date,year,month,user_name):
 	for user_name in user_names:
 		user_summary_qs = UsersSummaryReport.objects.filter(
 			Q(date__gte=from_date) & Q(date__lte=to_date),user_name=user_name)
-		print(user_name,"user")
-		print(user_summary_qs,"qs")
 		total_duration = []
 		no_dates = []
 		partial_work_dates = []
@@ -453,6 +451,7 @@ def users_summary(from_date,to_date,year,month,user_name):
 									user_summary_date_time[qs_date])
 
 		#print(user_summary_date_time,"hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
+		sum_partial_days = []
 		for key,time_done_per_day in user_summary_date_time.items():
 			qs_date_str = convert_date_datetime_str(key)
 			if user_wfh:
@@ -472,6 +471,7 @@ def users_summary(from_date,to_date,year,month,user_name):
 			if int(time_done_per_day) >= 300 and int(time_done_per_day) < 480:
 				partial_time = qs_date_str+'-->'+str(int(time_done_per_day))
 				partial_work_dates.append(partial_time)
+				sum_partial_days.append(int(time_done_per_day))
 				no_dates.append(key)
 			if int(time_done_per_day) >= 480:
 				extra_time = qs_date_str+'-->'+str(int(time_done_per_day))
@@ -511,9 +511,8 @@ def users_summary(from_date,to_date,year,month,user_name):
 			joined_date = None
 			logging.exception("message")
 		leave_dates = remove_dates_before_joined(leave_dates,joined_date)
-		no_dates.extend(worked_less)
 		user_worked_as_per_working_days = list(set(no_dates)-set(month_holidays))
-
+		no_dates.extend(worked_less)
 		worked_weekend_days = worked_on_weekenddays(user_worked_as_per_working_days,no_dates)
 		if worked_weekend_days:
 			worked_on_weekend_days_holiday = "Yes"
@@ -524,6 +523,21 @@ def users_summary(from_date,to_date,year,month,user_name):
 			extra_time_worked = 0
 		total_time_to_work = (no_working_days-len(leave_dates)) * 480
 		total_time_worked = sum(total_duration)
+		partial_days_total_sum = sum(sum_partial_days)
+		if partial_days_total_sum:
+			days_above_8hours = len(extra_work_dates)
+			no_of_days_worked = days_above_8hours + partial_days_total_sum/480
+		else:
+			no_of_days_worked = len(extra_work_dates)
+		lop_for_less_work = len(user_worked_as_per_working_days) - no_of_days_worked
+		if lop_for_less_work >= 0:
+			no_leaves_lop = len(leave_dates) + abs(lop_for_less_work)
+		else:
+			no_leaves_lop = len(leave_dates)
+		print(user_name,"user name")
+		print(no_of_days_worked,"len")
+		print(lop_for_less_work,"lop_for_less_work")
+		print(no_leaves_lop,"no_leaves_lop")
 		if (user_name):
 			#pass
 			user = User.objects.get(username=user_name)
@@ -537,24 +551,24 @@ def users_summary(from_date,to_date,year,month,user_name):
 					year_month = "{}-{}".format(year,month)
 					total_leaves_data[year_month] = {}
 					total_leaves_data[year_month]['month'] = month
-					total_leaves_data[year_month]['total_leaves'] = len(leave_dates)
+					total_leaves_data[year_month]['total_leaves'] = no_leaves_lop
 					if int(month) == 1:
 						last_month = "{}-{}".format(int(year)-1,12)
 					else:
 						last_month = "{}-{}".format(year,int(month)-1)
 					accrued_leaves = total_leaves_data[str(last_month)]['accrued_leaves'] + 2
-					if len(leave_dates) == 0:
+					if no_leaves_lop == 0:
 						total_leaves_data[year_month]['paid_leaves'] = 0
 						total_leaves_data[year_month]['unpaid_leaves'] = 0
-					elif len(leave_dates) > accrued_leaves:
-						unpaid_leaves = len(leave_dates) - accrued_leaves
+					elif no_leaves_lop > accrued_leaves:
+						unpaid_leaves = no_leaves_lop - accrued_leaves
 						total_leaves_data[year_month]['unpaid_leaves'] = unpaid_leaves
 						total_leaves_data[year_month]['paid_leaves'] = accrued_leaves
 						accrued_leaves = 0
-					elif accrued_leaves >= len(leave_dates):
+					elif accrued_leaves >= no_leaves_lop:
 						total_leaves_data[year_month]['unpaid_leaves'] = 0
-						total_leaves_data[year_month]['paid_leaves'] = len(leave_dates)
-						accrued_leaves = accrued_leaves - len(leave_dates)
+						total_leaves_data[year_month]['paid_leaves'] = no_leaves_lop
+						accrued_leaves = accrued_leaves - no_leaves_lop
 					total_leaves_data[year_month]['accrued_leaves'] = accrued_leaves
 					total_leaves_qs.data = total_leaves_data
 					total_leaves_qs.save()
@@ -566,19 +580,19 @@ def users_summary(from_date,to_date,year,month,user_name):
 					total_leaves_dict = {}
 					total_leaves_dict[year_month] = {}
 					total_leaves_dict[year_month]['month'] = month
-					total_leaves_dict[year_month]['total_leaves'] = len(leave_dates)
+					total_leaves_dict[year_month]['total_leaves'] = no_leaves_lop
 					joined_day = joined_date.day
 					accrued_per_day = 2/days_in_month
 					accrued_leaves = ((days_in_month - joined_day)*(accrued_per_day))
-					if len(leave_dates) == 0:
+					if no_leaves_lop == 0:
 						total_leaves_dict[year_month]['paid_leaves'] = 0
 						total_leaves_dict[year_month]['unpaid_leaves'] = 0
-					elif len(leave_dates) > accrued_leaves:
-						unpaid_leaves = len(leave_dates) - accrued_leaves
+					elif no_leaves_lop > accrued_leaves:
+						unpaid_leaves = no_leaves_lop - accrued_leaves
 						total_leaves_dict[year_month]['unpaid_leaves'] = unpaid_leaves
 						total_leaves_dict[year_month]['paid_leaves'] = accrued_leaves
 						accrued_leaves = 0
-					elif accrued_leaves > len(leave_dates):
+					elif accrued_leaves > no_leaves_lop:
 						total_leaves_dict[year_month]['unpaid_leaves'] = 0
 						total_leaves_dict[year_month]['paid_leaves'] = accrued_leaves
 					total_leaves_dict[year_month]['accrued_leaves'] = accrued_leaves
@@ -589,7 +603,7 @@ def users_summary(from_date,to_date,year,month,user_name):
 		'No of leaves' : len(leave_dates),
 		'Leave Dates' : leave_dates,
 		'No of working days': no_working_days,
-		'No of days worked': len(set(user_worked_as_per_working_days)),
+		'No of days worked': no_of_days_worked,
 		'Partial work':partial_work_dates,
 		'Extra work':extra_work_dates,
 		'For Month': month,
