@@ -148,6 +148,10 @@ CELERY_BEAT_SCHEDULE = {
 	'task':'reports_2.update_employee_leaves',
 	'schedule':crontab(0,3,day_of_month='1')
 	},
+    'request_leave_mail':{
+    'task':'reports_2.request_leave_mail',
+    'schedule':crontab()
+    },
 }
 
 #app.conf.beat_schedule = {
@@ -156,3 +160,10 @@ CELERY_BEAT_SCHEDULE = {
 #        'schedule': crontab(minute='*/5'),  # change to `crontab(minute=0, hour=0)` if you want it to run daily at m$
 #    },
 #}
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.office365.com'
+EMAIL_HOST_USER = 'vikramp@s7works.io'
+EMAIL_HOST_PASSWORD = 'vicky@116'
+EMAIL_PORT = 587

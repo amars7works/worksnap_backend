@@ -9,7 +9,7 @@ class BankAccountNumberAdmin(admin.ModelAdmin):
 admin.site.register(BankAccountNumber,BankAccountNumberAdmin)
 
 class ApplyLeaveAdmin(admin.ModelAdmin):
-	list_display = ('user','leave_start_date','leave_end_date','apply_reason','leave_status','denied_reason','Type_of_Request')
+	list_display = ('user','created_at','leave_start_date','leave_end_date','apply_reason','leave_status','denied_reason','Type_of_Request')
 	search_fields = ('user',)
 
 admin.site.register(ApplyLeave,ApplyLeaveAdmin)

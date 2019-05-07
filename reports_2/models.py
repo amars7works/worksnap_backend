@@ -13,7 +13,7 @@ class BankAccountNumber(models.Model):
 class ApplyLeave(models.Model):
 	TYPE_OF_REQUEST_CHOICE = (
 		("Sick_Leave","Sick Leave Request"),
-		("Vocational_Leave","Vocational Leave Request"),
+		("Vocational_Leave","Vacation Leave Request"),
 		("General_Leave","General Leave Request"),
 		("Night_Shift","Night Shift Request"),
 		("Work_From_Home","WorkFromHome Request"),

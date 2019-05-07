@@ -61,3 +61,30 @@ class leave_details(generics.RetrieveUpdateDestroyAPIView):
 		else:
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# @send_leave_request
+def apply_leave_request():
+	today = date.today()
+	obj=ApplyLeave.objects.filter(created_at=today)
+	if obj:
+		msg="request {}".format(date.today())
+		msg=msg+'''
+			http://localhost:8000/biggboss/reports_2/applyleave/
+		'''
+			
+		return requestleavemail(msg)
+	else:
+		print("no data")
+
+
+def requestleavemail(msg):
+	subject="request {}".format(date.today())
+	from_email = settings.EMAIL_HOST_USER
+	to = "sai@s7works.io"
+	cc = "vikramp@s7works.io,supraja@s7works.io"
+	rcpt = cc.split(",")  + [to]
+	res = send_mail(subject,msg,from_email,rcpt)
+	if(res==1):
+		print("Mail sent successfully")
+	else:
+		print("Failed to send mail")
+	return HttpResponse(msg)
