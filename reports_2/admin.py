@@ -1,5 +1,5 @@
 from django.contrib import admin
-from reports_2.models import BankAccountNumber
+from reports_2.models import BankAccountNumber, ApplyLeave
 # Register your models here.
 
 class BankAccountNumberAdmin(admin.ModelAdmin):
@@ -7,3 +7,9 @@ class BankAccountNumberAdmin(admin.ModelAdmin):
 	search_fields = ('user',)
 
 admin.site.register(BankAccountNumber,BankAccountNumberAdmin)
+
+class ApplyLeaveAdmin(admin.ModelAdmin):
+	list_display = ('user','leave_start_date','leave_end_date','apply_reason','leave_status','denied_reason','Type_of_Request')
+	search_fields = ('user',)
+
+admin.site.register(ApplyLeave,ApplyLeaveAdmin)
