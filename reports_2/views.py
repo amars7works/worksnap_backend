@@ -31,10 +31,15 @@ class leave_details(generics.RetrieveUpdateDestroyAPIView):
 	permission_classes = (IsAuthenticated,)
 	serializer_class = applyleaveserializer
 
+	# def get_queryset(self):
+	# 	user = self.request.user
+	# 	local_time = datetime.now()
+	# 	return ApplyLeave.objects.filter(leave_start_date__gte=local_time,leave_status=False,user=user)
 	def get_queryset(self):
 		user = self.request.user
-		local_time = datetime.now()
-		return ApplyLeave.objects.filter(leave_start_date__gte=local_time,leave_status=False,user=user)
+		get_all_details = ApplyLeave.objects.all()
+		print(get_all_details,"get_all_details")
+		return get_all_details 
 
 	def get(self,request,*args,**kwargs):	
 		serializer = applyleaveserializer(self.get_queryset(), many=True)
@@ -60,6 +65,12 @@ class leave_details(generics.RetrieveUpdateDestroyAPIView):
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 		else:
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+	
+	def delete(self, request, pk, format=None):
+		instance_id = request.data.get('id')
+		leave_delete = self.get_object(instance_id)
+		leave_delete.delete()
+		return Response(status=status.HTTP_204_NO_CONTENT)
 
 # @send_leave_request
 def apply_leave_request():
