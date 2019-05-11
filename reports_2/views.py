@@ -37,12 +37,13 @@ class leave_details(generics.RetrieveUpdateDestroyAPIView):
 	# 	return ApplyLeave.objects.filter(leave_start_date__gte=local_time,leave_status=False,user=user)
 	def get_queryset(self):
 		user = self.request.user
-		get_all_details = ApplyLeave.objects.all()
-		print(get_all_details,"get_all_details")
-		return get_all_details 
+		if user.is_superuser:
+			get_all_details = ApplyLeave.objects.all()
+			return get_all_details
 
-	def get(self,request,*args,**kwargs):	
-		serializer = applyleaveserializer(self.get_queryset(), many=True)
+	def get(self,request,*args,**kwargs):
+		get_data = self.get_queryset()
+		serializer = applyleaveserializer(get_data, many=True)
 		data = serializer.data[:]
 		return Response(data, status=status.HTTP_200_OK)
 
@@ -66,10 +67,10 @@ class leave_details(generics.RetrieveUpdateDestroyAPIView):
 		else:
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 	
-	def delete(self, request, pk, format=None):
+	def delete(self, request, format=None):
 		instance_id = request.data.get('id')
-		leave_delete = self.get_object(instance_id)
-		leave_delete.delete()
+		leave_cancel = self.get_object(instance_id)
+		leave_cancel.delete()
 		return Response(status=status.HTTP_204_NO_CONTENT)
 
 # @send_leave_request

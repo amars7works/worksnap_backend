@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'graphene_django',
     'reports',
     'reports_2',
@@ -68,13 +69,14 @@ WSGI_APPLICATION = 'worksnaps_report.wsgi.application'
 
 DATABASES = {
     'default': {
-        #'ENGINE': 'django.db.backends.sqlite3',
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'worksnaps',
-        'USER': 's7_worksnaps',
-        'PASSWORD': 's7works.io',
-        'HOST':'localhost',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR,'db.sqlite3'),
+        # 'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        # 'NAME': 'worksnaps',
+        # 'USER': 's7_worksnaps',
+        # 'PASSWORD': 's7works.io',
+        # 'HOST':'localhost',
+        # 'PORT': '5432',
     }
 }
 
@@ -123,6 +125,9 @@ STATICFILES_DIRS = (
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'utils.exempt.CsrfExemptSessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
 		)
 }
 
