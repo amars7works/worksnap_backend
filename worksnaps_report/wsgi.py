@@ -1,5 +1,5 @@
 """
-WSGI config for worksnaps_report project.
+WSGI config for double_critical project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -10,7 +10,28 @@ https://docs.djangoproject.com/en/1.11/howto/deployment/wsgi/
 import os
 
 from django.core.wsgi import get_wsgi_application
+from decouple import config
+requires_system_checks = False
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worksnaps_report.settings")
+
+def get_env_variable(var_name):
+    try:
+        return os.environ[var_name]
+    except KeyError:
+        print("Set the %s environment variable" % (var_name))
+        print("Current environment set to local")
+
+'''
+   This tells django which settings file to use, depending on 
+   the value of the DJANGO_EXECUTION_ENVIRONMENT variable.
+'''
+DJANGO_EXECUTION_ENVIRONMENT = get_env_variable('DJANGO_EXECUTION_ENVIRONMENT')
+
+if DJANGO_EXECUTION_ENVIRONMENT == 'STAGING':
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worksnaps_report.settings.staging")
+elif DJANGO_EXECUTION_ENVIRONMENT == 'PRODUCTION':
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worksnaps_report.settings.production")
+else:
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worksnaps_report.settings.local")
 
 application = get_wsgi_application()

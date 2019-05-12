@@ -511,8 +511,9 @@ def users_summary(from_date,to_date,year,month,user_name):
 			joined_date = None
 			logging.exception("message")
 		leave_dates = remove_dates_before_joined(leave_dates,joined_date)
-		user_worked_as_per_working_days = list(set(no_dates)-set(month_holidays))
 		no_dates.extend(worked_less)
+		user_worked_as_per_working_days = list(set(no_dates)-set(month_holidays))
+
 		worked_weekend_days = worked_on_weekenddays(user_worked_as_per_working_days,no_dates)
 		if worked_weekend_days:
 			worked_on_weekend_days_holiday = "Yes"
@@ -527,6 +528,12 @@ def users_summary(from_date,to_date,year,month,user_name):
 		if partial_days_total_sum:
 			days_above_8hours = len(extra_work_dates)
 			no_of_days_worked = days_above_8hours + partial_days_total_sum/480
+			print(no_of_days_worked,"no_of_days_worked")
+			print(days_above_8hours,"Mani Sankar:
+Even if there is an issue you have to report it here.
+
+Please change this line.
+Even if there is an issue you have to report it in the respective project stream blockers (topic) first.)
 		else:
 			no_of_days_worked = len(extra_work_dates)
 		lop_for_less_work = len(user_worked_as_per_working_days) - no_of_days_worked
@@ -534,10 +541,6 @@ def users_summary(from_date,to_date,year,month,user_name):
 			no_leaves_lop = len(leave_dates) + abs(lop_for_less_work)
 		else:
 			no_leaves_lop = len(leave_dates)
-		print(user_name,"user name")
-		print(no_of_days_worked,"len")
-		print(lop_for_less_work,"lop_for_less_work")
-		print(no_leaves_lop,"no_leaves_lop")
 		if (user_name):
 			#pass
 			user = User.objects.get(username=user_name)

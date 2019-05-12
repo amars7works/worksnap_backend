@@ -63,7 +63,21 @@ class UserProfile(models.Model):
 class RemainingAccruedLeaves(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	remaining_leaves = models.FloatField()
+	till_date = models.DateField(null=True)
+	def __str__(self):
+		return "%s"%(self.user)
+
+class UserXmldata(models.Model):
+	user = models.ForeignKey(User, on_delete=models.CASCADE)
+	date = models.DateField()
+	xml_data = models.TextField()
 
 	def __str__(self):
-		return "%s"%(self.user)	
-	
+		return "%s"%(self.user)
+
+class TotalLeaves(models.Model):
+	user = models.ForeignKey(User, on_delete=models.CASCADE)
+	data = models.TextField()
+
+	def __str__(self):
+		return "%s"%(self.user)
