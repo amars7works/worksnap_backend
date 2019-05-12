@@ -12,12 +12,12 @@ SECRET_KEY = '4rq1*w#u!4ew5f-d7+xa#x4ne12*cqerqwer42rf#0u8wa6yvm$'
 
 DATABASES = {
   'default': {
-    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    'ENGINE': 'django.db.backends.mysql',
     'NAME': 'worksnaps',
     'USER': 's7_worksnaps',
     'PASSWORD': 's7works.io',
-    'HOST':'localhost',
-    'PORT': '5432',
+    'HOST': 's7-internal.cluster-c7lti9kc1dov.ap-south-1.rds.amazonaws.com',
+    'PORT': '3306',
   }
 }
 
