@@ -2,8 +2,29 @@
 import os
 import sys
 
+from decouple import config
+
+def get_env_variable(var_name):
+    try:
+        return os.environ[var_name]
+    except KeyError:
+        print("Set the %s environment variable" % (var_name))
+        print("Current environment set to local")
+
 if __name__ == "__main__":
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worksnaps_report.settings")
+    '''
+	This is tells django which settings file to use, depending on
+	the value of the DJANGO_EXECUTION_ENVIRONMENT variable.
+    '''
+    DJANGO_EXECUTION_ENVIRONMENT=get_env_variable('DJANGO_EXECUTION_ENVIRONMENT')
+
+    if DJANGO_EXECUTION_ENVIRONMENT == 'PRODUCTION':
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worksnaps_report.settings.production")
+    elif DJANGO_EXECUTION_ENVIRONMENT == 'STAGING':
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worksnaps_report.settings.staging")
+    else:
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worksnaps_report.settings.local")
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError:
