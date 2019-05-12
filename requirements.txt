@@ -29,6 +29,8 @@ psycopg2==2.7.5
 psycopg2-binary==2.7.5
 ptyprocess==0.6.0
 Pygments==2.2.0
+PyMySQL==0.9.3
+python-decouple==3.1
 pytz==2018.5
 redis==2.10.6
 requests==2.19.1

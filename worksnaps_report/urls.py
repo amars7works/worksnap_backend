@@ -19,8 +19,8 @@ from reports import views as reports_views
 from reports import urls as reportsUrls
 
 urlpatterns = [
-    url(r'^biggboss/', admin.site.urls),
-    url(r'^',include(reportsUrls)),
-    url(r'^',include('reports_2.urls')),
+    url(r'^s7_admin/', admin.site.urls),
+    url(r'^api/',include(reportsUrls)),
+    url(r'^api/',include('reports_2.urls')),
 
 ]
