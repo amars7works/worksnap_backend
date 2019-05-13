@@ -13,7 +13,8 @@ from django.http import Http404
 from django.http import JsonResponse,HttpResponse
 from worksnaps_report import settings
 from django.core.mail import get_connection, EmailMultiAlternatives, send_mail
-
+from reports.models import UserDailyReport
+from reports.views import store_daily_report
 
 class ApplyLeaveView(generics.CreateAPIView):
 	permission_classes = (IsAuthenticated,)		
@@ -96,6 +97,35 @@ def requestleavemail(msg):
 	rcpt = cc.split(",")  + [to]
 	res = send_mail(subject,msg,from_email,rcpt)
 	if(res==1):
+		print("Mail sent successfully")
+	else:
+		print("Failed to send mail")
+	return HttpResponse(msg)
+
+
+# @send_user_daily_report_mail
+def users_queryset():
+	obj=UserDailyReport.objects.filter(cretaed_at=date.today())
+	filter_keys={'username','what_was_done_this_day','what_is_your_plan_for_the_next_day'}
+	a={}
+	msg="Daily Report {}".format(date.today())
+	for u in obj:
+		a[u.username]={key:value for key,value in u.__dict__.items() if key in filter_keys}
+		msg=msg+'''
+user={},
+what was done this day={},
+what is your plan for the next day={}
+'''
+		msg=msg.format(a[u.username]['username'],a[u.username]['what_was_done_this_day'],a[u.username]['what_is_your_plan_for_the_next_day'])
+	return dailyreportsmail(msg)
+
+
+def dailyreportsmail(msg):
+	subject="Daily Report {}".format(date.today())
+	from_email = settings.EMAIL_HOST_USER
+	to="gowtham@s7works.io"
+	res=send_mail(subject,msg,from_email,[to])
+	if res==1:
 		print("Mail sent successfully")
 	else:
 		print("Failed to send mail")
