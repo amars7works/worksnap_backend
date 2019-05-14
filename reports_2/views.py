@@ -21,11 +21,15 @@ class ApplyLeaveView(generics.CreateAPIView):
 	serializer_class = applyleaveserializer
 	
 	def post(self,request):
-	    serializer = applyleaveserializer(data = request.data)
-	    if serializer.is_valid():
-	        serializer.save()
-	        return Response(serializer.data, status=status.HTTP_201_CREATED)
-	    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+		user_id = request.user.id
+		tmp_leave_data = request.data
+		tmp_leave_data['user'] = user_id
+		tmp_leave_data['created_at'] = date.today()
+		serializer = applyleaveserializer(data = tmp_leave_data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data, status=status.HTTP_201_CREATED)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class leave_details(generics.RetrieveUpdateDestroyAPIView):
