@@ -18,13 +18,19 @@ class ApplyLeave(models.Model):
 		("Night_Shift","Night Shift Request"),
 		("Work_From_Home","WorkFromHome Request"),
 		)
+	leave_status_types = (
+		("Pending","Pending"),
+		("Approved","Approved"),
+		("Rejected","Rejected"),
+		)
 	
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	created_at = models.DateField()
 	leave_start_date = models.DateTimeField()
 	leave_end_date = models.DateTimeField()
 	apply_reason = models.TextField(null=True,blank=True)
-	leave_status = models.BooleanField(default=False)
+	# leave_status = models.BooleanField(default=False)
+	leave_status = models.CharField(choices = leave_status_types, default="Pending", max_length = 25)
 	denied_reason = models.TextField(null=True,blank=True)
 	Type_of_Request = models.CharField(
         choices = TYPE_OF_REQUEST_CHOICE,

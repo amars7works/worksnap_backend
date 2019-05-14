@@ -65,10 +65,13 @@ class leave_details(generics.RetrieveUpdateDestroyAPIView):
 			instance_id = request.data.get('id')
 			user = self.get_object(instance_id)
 			serializer = applyleaveserializer(instance=user, data=request.data, partial=True)
-			if serializer.is_valid():
-				serializer.save()
-				return Response(serializer.data)
-			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+			get_status = request.data.get('leave_status')
+			if get_status:
+				if serializer.is_valid():
+					serializer.save()
+					return Response(serializer.data)
+				return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+			return HttpResponse(get_status)
 		else:
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 	
@@ -77,6 +80,18 @@ class leave_details(generics.RetrieveUpdateDestroyAPIView):
 		leave_cancel = self.get_object(instance_id)
 		leave_cancel.delete()
 		return Response(status=status.HTTP_204_NO_CONTENT)
+	
+def leavestatus(request):
+	get_details = ApplyLeave.objects.all()
+	for status in get_details:
+		leave_status = status.leave_status
+		if leave_status == "Pending":
+			return HttpResponse("Pending")
+		elif leave_status == "Approved":
+			return HttpResponse("Approved")
+		else:
+			return HttpResponse("Rejected")
+	return HttpResponse(status)
 
 # @send_leave_request
 def apply_leave_request():

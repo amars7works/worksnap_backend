@@ -382,12 +382,13 @@ def get_user_names():
 	user_list = UsersList.objects.all()
 	user_name = []
 	for single_user in user_list:
-		first_name = single_user.user_first_name
-		last_name = single_user.user_last_name
-		username = first_name+' '+last_name
-		user_name.append(username)
-	user_name.append("s7_worksnaps")
-	return sorted(user_name)
+		user_email = single_user.user_email 
+	# 	first_name = single_user.user_first_name
+	# 	last_name = single_user.user_last_name
+	# 	username = first_name+' '+last_name
+		user_name.append(user_email)
+	# user_name.append("s7_worksnaps")
+	return user_name
 
 def create_from_to_date(year,month):
 	monthrang = monthrange(int(year),int(month))
