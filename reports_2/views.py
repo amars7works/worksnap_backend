@@ -1,9 +1,11 @@
 from django.shortcuts import render
 
 # Create your views here.
+from django.contrib.auth.models import User
+from django.core import serializers
 from rest_framework.response import Response
 from reports_2.models import ApplyLeave
-from reports_2.serializer import applyleaveserializer
+from reports_2.serializer import applyleaveserializer, userserializer
 from rest_framework.views import APIView
 from rest_framework import status
 from datetime import datetime,date
@@ -15,6 +17,7 @@ from worksnaps_report import settings
 from django.core.mail import get_connection, EmailMultiAlternatives, send_mail
 from reports.models import UserDailyReport
 from reports.views import store_daily_report
+from django.contrib.auth import get_user_model
 
 class ApplyLeaveView(generics.CreateAPIView):
 	permission_classes = (IsAuthenticated,)		
@@ -49,6 +52,9 @@ class leave_details(generics.RetrieveUpdateDestroyAPIView):
 	def get(self,request,*args,**kwargs):
 		get_data = self.get_queryset()
 		serializer = applyleaveserializer(get_data, many=True)
+		for dt in serializer.data:
+			user_obj=User.objects.get(id=dt['user'])
+			dt['username'] =  user_obj.username
 		data = serializer.data[:]
 		return Response(data, status=status.HTTP_200_OK)
 
@@ -80,8 +86,33 @@ class leave_details(generics.RetrieveUpdateDestroyAPIView):
 		leave_cancel = self.get_object(instance_id)
 		leave_cancel.delete()
 		return Response(status=status.HTTP_204_NO_CONTENT)
-	
+
+class emp_details(generics.RetrieveUpdateDestroyAPIView):
+	serializer_class = userserializer
+	""" list all employees details display into the admin panel """
+	def get_queryset(self):
+		user = self.request.user
+		if user.is_superuser:
+			get_all_details = User.objects.all()
+			return get_all_details
+
+	def get(self,request,*args,**kwargs):
+		user = self.request.user
+		get_data = self.get_queryset()
+		serializer = userserializer(get_data, many=True)
+		data = serializer.data[:]
+		return Response(data, status=status.HTTP_200_OK)
+		
+# def emp_list(request):
+# 	""" list all employees details display into the admin panel """
+# 	user = request.user
+# 	if user.is_superuser:
+# 		queryset = get_user_model().objects.all()
+# 		querysets = serializers.serialize('json',queryset)
+# 		return HttpResponse(querysets)
+
 def leavestatus(request):
+	"""  """
 	get_details = ApplyLeave.objects.all()
 	for status in get_details:
 		leave_status = status.leave_status
