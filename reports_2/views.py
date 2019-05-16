@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.core import serializers
 from rest_framework.response import Response
 from reports_2.models import ApplyLeave
-from reports_2.serializer import applyleaveserializer, userserializer
+from reports_2.serializer import applyleaveserializer, userserializer,UserDailyReportSerializers
 from rest_framework.views import APIView
 from rest_framework import status
 from datetime import datetime,date
@@ -77,7 +77,7 @@ class leave_details(generics.RetrieveUpdateDestroyAPIView):
 					serializer.save()
 					return Response(serializer.data)
 				return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-			return HttpResponse(get_status)
+			return Response(get_status)
 		else:
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 	
@@ -95,7 +95,6 @@ class emp_details(generics.RetrieveUpdateDestroyAPIView):
 		if user.is_superuser:
 			get_all_details = User.objects.all()
 			return get_all_details
-
 	def get(self,request,*args,**kwargs):
 		user = self.request.user
 		get_data = self.get_queryset()
@@ -124,6 +123,9 @@ def leavestatus(request):
 			return HttpResponse("Rejected")
 	return HttpResponse(status)
 
+
+
+
 # @send_leave_request
 def apply_leave_request():
 	today = date.today()
@@ -151,6 +153,22 @@ def requestleavemail(msg):
 	else:
 		print("Failed to send mail")
 	return HttpResponse(msg)
+
+class DailyReportView(generics.CreateAPIView):
+	permission_classes = (IsAuthenticated,)		
+	serializer_class = UserDailyReportSerializers
+
+	def post(self,request):
+		username = request.user.username
+		temp_data = request.data
+		temp_data['username'] = username
+		temp_data['cretaed_at'] = date.today()
+		serializer = UserDailyReportSerializers(data = temp_data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data, status=status.HTTP_201_CREATED)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 # @send_user_daily_report_mail

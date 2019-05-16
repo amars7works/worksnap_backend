@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from reports_2.models import ApplyLeave
 from django.contrib.auth.models import User
+from reports.models import UserDailyReport
+
 
 class applyleaveserializer(serializers.ModelSerializer):
 
@@ -25,3 +27,9 @@ class userserializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
 		fields = ('username', 'first_name', 'last_name', 'email', 'date_joined', 'is_active','is_superuser')
+
+class UserDailyReportSerializers(serializers.ModelSerializer):
+
+	class Meta:
+		model = UserDailyReport
+		fields = '__all__'
