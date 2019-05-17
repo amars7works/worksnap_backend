@@ -5,7 +5,9 @@ from django.contrib.auth.models import User
 from django.core import serializers
 from rest_framework.response import Response
 from reports_2.models import ApplyLeave
-from reports_2.serializer import applyleaveserializer, userserializer,UserDailyReportSerializers
+from reports_2.serializer import applyleaveserializer, \
+									userserializer,\
+									UserDailyReportSerializers
 from rest_framework.views import APIView
 from rest_framework import status
 from datetime import datetime,date
@@ -14,7 +16,9 @@ from rest_framework.permissions import IsAuthenticated
 from django.http import Http404
 from django.http import JsonResponse,HttpResponse
 from worksnaps_report import settings
-from django.core.mail import get_connection, EmailMultiAlternatives, send_mail
+from django.core.mail import get_connection, \
+								EmailMultiAlternatives, \
+								send_mail
 from reports.models import UserDailyReport
 from reports.views import store_daily_report
 from django.contrib.auth import get_user_model
@@ -87,6 +91,45 @@ class leave_details(generics.RetrieveUpdateDestroyAPIView):
 		leave_cancel.delete()
 		return Response(status=status.HTTP_204_NO_CONTENT)
 
+class Leave_Approved_List(generics.RetrieveUpdateDestroyAPIView):
+	permission_classes = (IsAuthenticated,)
+	serializer_class = applyleaveserializer
+
+	def get_queryset(self):
+		user = self.request.user
+		if user.is_superuser:
+			local_time = date.today()
+			lve_aprd_list = ApplyLeave.objects.filter(leave_start_date__gte=local_time,leave_status="Approved")
+			return lve_aprd_list
+
+	def get(self,request,*args,**kwargs):
+		get_data = self.get_queryset()
+		serializer = applyleaveserializer(get_data, many=True)
+		for dt in serializer.data:
+			user_obj=User.objects.get(id=dt['user'])
+			dt['username'] =  user_obj.username
+		data = serializer.data[:]
+		return Response(data, status=status.HTTP_200_OK)
+
+class Leave_Rejected_List(generics.RetrieveUpdateDestroyAPIView):
+	permission_classes = (IsAuthenticated,)
+	serializer_class = applyleaveserializer
+
+	def get_queryset(self):
+		user = self.request.user
+		if user.is_superuser:
+			lve_rjtd_list = ApplyLeave.objects.filter(leave_status="Rejected")
+			return lve_rjtd_list
+
+	def get(self,request,*args,**kwargs):
+		get_data = self.get_queryset()
+		serializer = applyleaveserializer(get_data, many=True)
+		for dt in serializer.data:
+			user_obj=User.objects.get(id=dt['user'])
+			dt['username'] =  user_obj.username
+		data = serializer.data[:]
+		return Response(data, status=status.HTTP_200_OK)
+
 class emp_details(generics.RetrieveUpdateDestroyAPIView):
 	serializer_class = userserializer
 	""" list all employees details display into the admin panel """
@@ -102,16 +145,10 @@ class emp_details(generics.RetrieveUpdateDestroyAPIView):
 		data = serializer.data[:]
 		return Response(data, status=status.HTTP_200_OK)
 		
-# def emp_list(request):
-# 	""" list all employees details display into the admin panel """
-# 	user = request.user
-# 	if user.is_superuser:
-# 		queryset = get_user_model().objects.all()
-# 		querysets = serializers.serialize('json',queryset)
-# 		return HttpResponse(querysets)
+
 
 def leavestatus(request):
-	"""  """
+	""" employee leave status response """
 	get_details = ApplyLeave.objects.all()
 	for status in get_details:
 		leave_status = status.leave_status
