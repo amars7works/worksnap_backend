@@ -330,7 +330,7 @@ def get_this_month_holidays(from_date,to_date):
 		Get the holidays for the given month
 	'''
 	holiday_qs = HolidayList.objects.filter(
-		Q(holiday_date__gte=from_date) & Q(
+			Q(holiday_date__gte=from_date) & Q(
 			holiday_date__lte=to_date))
 	return [single_holiday.holiday_date for single_holiday in holiday_qs]
 
@@ -535,10 +535,7 @@ def users_summary(from_date,to_date,year,month,user_name):
 			no_leaves_lop = len(leave_dates) + abs(lop_for_less_work)
 		else:
 			no_leaves_lop = len(leave_dates)
-		print(user_name,"user name")
-		print(no_of_days_worked,"len")
-		print(lop_for_less_work,"lop_for_less_work")
-		print(no_leaves_lop,"no_leaves_lop")
+		print(user_name,"user nameeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
 		if (user_name):
 			#pass
 			user = User.objects.get(username=user_name)
@@ -735,11 +732,13 @@ def get_bankaccount_nos():
 	account_nos = BankAccountNumber.objects.all()
 	return account_nos
 
-def store_remaining_leaves(sheet1,remainig_leave,user_names,month,year):
+def store_remaining_leaves(sheet1,user_summary,remainig_leave,user_names,month,year):
 	row_data = 0
 	column_data = 7
-	monthrang = monthrange(int(year),int(month))
-	no_days_month = monthrang[1]
+	for key, user_data in user_summary.items():
+		no_days_month = user_data.get('No of working days')
+		break
+	no_days_month_fixed = no_days_month
 	year_month = "{}-{}".format(year,month)
 	user_names_copy = user_names.copy()
 	if len(user_names_copy) > 1 and 's7_worksnaps' in user_names_copy:
@@ -777,7 +776,7 @@ def store_remaining_leaves(sheet1,remainig_leave,user_names,month,year):
 		joined_year = None
 		joined_month = None
 		joined_day = None
-		no_days_month = monthrang[1]
+		no_days_month = no_days_month_fixed
 
 
 def wfh_data_refined(data):
@@ -861,7 +860,7 @@ def show_data_in_excel(request):
 	user_names = get_user_names()
 	account_nos = get_bankaccount_nos()
 	if user_name == "all":
-		store_remaining_leaves(sheet1,remainig_leave,updated_user_name,month,year)
+		store_remaining_leaves(sheet1,user_summary,remainig_leave,updated_user_name,month,year)
 		store_bankaccount_nos(sheet1,account_nos,updated_user_name)
 		users_wfh_data = parse_xml_data(updated_user_name,monthrang,month,year)
 		store_wfh_data(sheet1,users_wfh_data,updated_user_name)
@@ -869,7 +868,7 @@ def show_data_in_excel(request):
 	else:
 		user_names = []
 		user_names.append(user_name)
-		store_remaining_leaves(sheet1,remainig_leave,user_names,month,year)
+		store_remaining_leaves(sheet1,user_summary,remainig_leave,user_names,month,year)
 		store_bankaccount_nos(sheet1,account_nos,user_names)
 		users_wfh_data = parse_xml_data(user_names,monthrang,month,year)
 		store_wfh_data(sheet1,users_wfh_data,user_names)
