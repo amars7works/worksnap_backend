@@ -37,3 +37,7 @@ EMAIL_HOST = 'smtp.office365.com'
 EMAIL_HOST_USER = 'vikramp@s7works.io'
 EMAIL_HOST_PASSWORD = 'vicky@116'
 EMAIL_PORT = 587
+
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
+CELERY_TIMEZONE = 'Asia/Kolkata'

@@ -33,9 +33,15 @@ CELERY_BEAT_SCHEDULE = {
   },
 }
 
+
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.office365.com'
 EMAIL_HOST_USER = 'vikramp@s7works.io'
 EMAIL_HOST_PASSWORD = 'vicky@116'
 EMAIL_PORT = 587
+
+CELERY_BROKER_URL = 'redis://ubuntu:worksnaps_2112@172.26.15.51:6379'
+CELERY_RESULT_BACKEND = 'redis://ubuntu:worksnaps_2112@172.26.15.51:6379'
+CELERY_TIMEZONE = 'Asia/Kolkata'
