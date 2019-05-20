@@ -13,6 +13,8 @@ from rest_framework import status
 from datetime import datetime,date
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import authenticate
+from reports_2.authentication import EmailAuthBackend
 from django.http import Http404
 from django.http import JsonResponse,HttpResponse
 from worksnaps_report import settings
@@ -22,6 +24,19 @@ from django.core.mail import get_connection, \
 from reports.models import UserDailyReport
 from reports.views import store_daily_report
 from django.contrib.auth import get_user_model
+from rest_framework.decorators import api_view
+
+class Login(APIView):
+	def post(self, request, format="json"):
+		username = request.data.get('username')
+		password = request.data.get('password')
+		user = authenticate(request, username=username, password=password)
+		if user:
+			login(request,user)
+			return Response({"user_status":user.is_authenticated(), "user_id":user.id}, 
+						status=status.HTTP_200_OK)
+		else:
+			return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 class ApplyLeaveView(generics.CreateAPIView):
 	permission_classes = (IsAuthenticated,)		
