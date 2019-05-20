@@ -122,10 +122,6 @@ REST_FRAMEWORK = {
 #Celery Broker
 #CELERY_BROKER_URL = 'amqp://ec2-13-233-35-20.ap-south-1.compute.amazonaws.com'
 
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
-CELERY_TIMEZONE = 'Asia/Kolkata'
-
 #app.conf.beat_schedule = {
 #    'send-report-every-single-minute': {
 #        'task': 'publish.tasks.send_view_count_report',
