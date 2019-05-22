@@ -31,6 +31,9 @@ CELERY_BEAT_SCHEDULE = {
   'request_leave_mail': {
     'task':'reports_2.request_leave_mail', 'schedule':crontab()
   },
+  'send_users_daily_reports_mail':{
+    'task':'reports_2.send_users_daily_reports_mail','schedule':crontab()
+  },
 }
 
 
