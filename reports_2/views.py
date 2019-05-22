@@ -14,7 +14,6 @@ from datetime import datetime,date
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate, login
-from reports_2.authentication import EmailAuthBackend
 from django.http import Http404
 from django.http import JsonResponse,HttpResponse
 from worksnaps_report import settings
@@ -35,7 +34,7 @@ class Login(APIView):
 			login(request,user)
 			return Response({"user_status":user.is_authenticated, 
 						"user_id":user.id,
-						"is_superuser": user.is_superuser}, 
+						"is_superuser": user.is_superuser},
 						status=status.HTTP_200_OK)
 		else:
 			return Response({"user_status":user.is_authenticated}, status=status.HTTP_401_UNAUTHORIZED)
