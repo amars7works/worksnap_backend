@@ -13,7 +13,7 @@ from rest_framework import status
 from datetime import datetime,date
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login
 from reports_2.authentication import EmailAuthBackend
 from django.http import Http404
 from django.http import JsonResponse,HttpResponse
@@ -33,10 +33,12 @@ class Login(APIView):
 		user = authenticate(request, username=username, password=password)
 		if user:
 			login(request,user)
-			return Response({"user_status":user.is_authenticated(), "user_id":user.id}, 
+			return Response({"user_status":user.is_authenticated, 
+						"user_id":user.id,
+						"is_superuser": user.is_superuser}, 
 						status=status.HTTP_200_OK)
 		else:
-			return Response(status=status.HTTP_401_UNAUTHORIZED)
+			return Response({"user_status":user.is_authenticated}, status=status.HTTP_401_UNAUTHORIZED)
 
 class ApplyLeaveView(generics.CreateAPIView):
 	permission_classes = (IsAuthenticated,)		
@@ -250,3 +252,14 @@ def dailyreportsmail(msg):
 	else:
 		print("Failed to send mail")
 	return HttpResponse(msg)
+
+
+@api_view(['GET'])
+def auth_status(request):
+	if request.user.is_authenticated:
+		return Response({"user_status": request.user.is_authenticated, 
+						"user_id": request.user.id,
+						"is_superuser": request.user.is_superuser}, status=status.HTTP_200_OK)
+	else:
+		return Response({"user_status": request.user.is_authenticated}, 
+						status=status.HTTP_401_UNAUTHORIZED)
