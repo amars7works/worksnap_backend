@@ -3,12 +3,14 @@ from .views import ApplyLeaveView, \
 					leave_details, \
 					DailyReportView, \
 					Leave_Approved_List,\
-					Leave_Rejected_List
+					Leave_Rejected_List,\
+					auth_status
 from reports_2.views import *
 
 
 urlpatterns = [
 	url(r'^s7_login/', Login.as_view(),name='login_user'),
+	url(r'^auth_status/', auth_status,name='auth_status'),
 	url(r'^apply_leave/', ApplyLeaveView.as_view(), name='user apply for leave'),
 	url(r'^get_requests/',leave_details.as_view()),
 	url(r'^get_leave_status/', leavestatus, name = "leave status"),
