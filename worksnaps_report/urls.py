@@ -22,5 +22,6 @@ urlpatterns = [
     url(r'^s7_admin/', admin.site.urls),
     url(r'^api/',include(reportsUrls)),
     url(r'^api/',include('reports_2.urls')),
+    url(r'^api/',include('s7_auth.urls')),
 
 ]

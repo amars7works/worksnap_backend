@@ -32,7 +32,7 @@ class UserDailyReportNode(DjangoObjectType):
         model = UserDailyReport
         filter_fields = {
                          'username': ['exact', 'icontains', 'istartswith'],
-                         'cretaed_at':['exact', 'icontains'],
+                         'created_at':['exact', 'icontains'],
                         }
         interfaces = (relay.Node, )
 
@@ -66,12 +66,12 @@ class Query(object):
     def resolve_all_daily_report(self, info, **kwargs):
         print(kwargs,"key word arguments")
         username = kwargs.get("username")
-        created_at = kwargs.get("cretaed_at")
+        created_at = kwargs.get("created_at")
         print(username,type(username))
         print(created_at,type(created_at))
         if username and created_at:
                 print("entered into both user and created")
-                return UserDailyReport.objects.filter(username__icontains=username,cretaed_at=created_at)
+                return UserDailyReport.objects.filter(username__icontains=username,created_at=created_at)
         elif username:
                 print("entered into user")
                 return UserDailyReport.objects.filter(username__icontains=username)

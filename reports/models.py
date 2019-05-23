@@ -41,7 +41,7 @@ class HolidayList(models.Model):
 
 class UserDailyReport(models.Model):
 	username = models.CharField(max_length=100)
-	cretaed_at = models.DateField()
+	created_at = models.DateField()
 	what_was_done_this_day = models.TextField()
 	what_is_your_plan_for_the_next_day = models.TextField()
 	what_are_your_blockers = models.TextField()

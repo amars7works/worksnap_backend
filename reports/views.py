@@ -879,14 +879,14 @@ def show_data_in_excel(request):
 def store_daily_report(request):
 	if request.method == "POST":
 		username = request.user
-		cretaed_at = request.POST.get("cretaed_at","Not filled anything")
+		created_at = request.POST.get("created_at","Not filled anything")
 		q1 = request.POST.get("q1","Not filled anything")
 		q2 = request.POST.get("q2","Not filled anything")
 		q3 = request.POST.get("q3","Not filled anything")
 		q4 = request.POST.get("q4","Not filled anything")
 		q5 = request.POST.get("q5","Not filled anything")
 		UserDailyReport.objects.create(
-			username=username,cretaed_at=cretaed_at,what_was_done_this_day=q1,
+			username=username,created_at=created_at,what_was_done_this_day=q1,
 			what_is_your_plan_for_the_next_day = q2,
 			what_are_your_blockers = q3,
 			do_you_have_enough_tasks_for_next_three_days = q4,

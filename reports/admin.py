@@ -27,8 +27,8 @@ class HolidayListAdmin(admin.ModelAdmin):
 	search_fields = ('holiday_date',)
 
 class UserDailyReportAdmin(admin.ModelAdmin):
-	list_display = ('username','cretaed_at',)
-	search_fields = ('username','cretaed_at',)
+	list_display = ('username','created_at',)
+	search_fields = ('username','created_at',)
 
 class UserProfileAdmin(admin.ModelAdmin):
         list_display = ('user_name','joined_date',)

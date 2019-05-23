@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body style="margin: 0;padding: 0">
+  <table style="margin: 0; padding: 0">
+    <tbody>
+        <tr>
+            <td>
+                Hi {{ employer_name }},
+                <br />
+            </td>
+            
+        </tr>
+        <tr>
+            <td>
+                <h4>Employee Name:</h4><p>{{ username }}</p>
+                <h4>Type of leave:</h4><p>{{ Type_of_Request }}</p>
+                <h4>From date:</h4><p>{{ leave_start_date }}</p>
+                <h4>To date:</h4><p>{{ leave_end_date }}</p>
+                <h4>Employee Name:</h4><p>{{ username }}</p>
+                <h4>Reason:</h4><p>{{ apply_reason }}</p>
+                <h4>Requested date:</h4><p>{{ created_at }}</p>
+
+                <br />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>Regards,</p>
+                <p>S7works.</p>
+            </td>
+        </tr>
+    <tbody>
+  </table>
+</body>
+</html>

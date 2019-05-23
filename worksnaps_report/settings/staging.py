@@ -26,25 +26,33 @@ CELERY_BEAT_SCHEDULE = {
     'task': 'reports.get_users_data', 'schedule':crontab(minute=10,hour=1),
   },
   'update-employee-leaves': {
-    'task':'reports_2.update_employee_leaves', 'schedule':crontab(0,3,day_of_month='1')
-  },
-  'request_leave_mail': {
-    'task':'reports_2.request_leave_mail', 'schedule':crontab()
+    'task':'reports_2.update_employee_leaves', 'schedule':crontab(0,3,day_of_month=1)
   },
   'send_users_daily_reports_mail':{
-    'task':'reports_2.send_users_daily_reports_mail','schedule':crontab()
+    'task':'reports_2.send_users_daily_reports_mail','schedule':crontab(hour=22, day_of_week=6)
   },
 }
+
+
+# 'request_leave_mail': {
+#   'task':'reports_2.request_leave_mail', 'schedule':crontab()
+# },
 
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.office365.com'
-EMAIL_HOST_USER = 'vikramp@s7works.io'
-EMAIL_HOST_PASSWORD = 'vicky@116'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 's7works.smtp@gmail.com'
+EMAIL_HOST_PASSWORD = 'smtpcode2112'
 EMAIL_PORT = 587
 
 CELERY_BROKER_URL = 'redis://ubuntu:worksnaps_2112@172.26.15.51:6379'
 CELERY_RESULT_BACKEND = 'redis://ubuntu:worksnaps_2112@172.26.15.51:6379'
 CELERY_TIMEZONE = 'Asia/Kolkata'
+
+# Send request/report emails to
+EMPLOYER_EMAIL = ['saumyag@s7works.io']
+EMPLOYER_NAME = 'Saumya Garg'
+MANAGER_EMAIL_PROJECT_ONE = ['manis@s7works.io']
+MANAGER_EMAIL_PROJECT_TWO = ['dileepk@s7works.io']

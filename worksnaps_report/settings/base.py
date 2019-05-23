@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'graphene_django',
     'reports',
     'reports_2',
+    's7_auth',
 ]
 
 MIDDLEWARE = [
@@ -54,6 +55,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'worksnaps_report.wsgi.application'
 
+# User model
+# AUTH_USER_MODEL = 's7_users.User'
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -121,7 +124,7 @@ AUTHENTICATION_BACKENDS = (
     # 'social_core.backends.facebook.FacebookOAuth2',  # for Facebook authentication
     # 'social_core.backends.twitter.TwitterOAuth',  # for twitter authentication
     'django.contrib.auth.backends.ModelBackend',
-    'auth.authentication.EmailAuthBackend'
+    's7_auth.authentication.EmailAuthBackend'
 )
 
 

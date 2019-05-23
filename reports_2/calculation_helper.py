@@ -1,5 +1,5 @@
 from reports.views import users_summary
-from report.models import RemainingAccruedLeaves
+from reports.models import RemainingAccruedLeaves
 
 def add_remaining_leaves(from_date,to_date,year,month,user_name):
 	'''
