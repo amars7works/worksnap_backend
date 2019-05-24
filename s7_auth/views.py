@@ -23,7 +23,7 @@ class Login(APIView):
                         },
 						status=status.HTTP_200_OK)
 		else:
-			return Response({"user_status":user.is_authenticated}, status=status.HTTP_401_UNAUTHORIZED)
+			return Response({"user_status":False}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class Logout(APIView):
