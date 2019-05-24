@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body style="margin: 0; padding: 0;">
+    <table style="margin: 0; padding: 0">
+        <tbody>
+            <tr>
+                <td>
+                    Hi {{ employer_name }},
+                    <br />
+                </td>
+                
+            </tr>
+            <tr>
+                <td>
+                    {% for daily_report in daily_reports %}
+                        <h2>Daily Report -> {{ daily_report.username }}</h2>
+                        <h4>Report posted at:</h4><p>{{ daily_report.created_at }}</p>
+                        <h4>What was done this day?</h4><p>{{ what_was_done_this_day }}</p>
+                        <h4>What is your plan for the next day?</h4><p>{{ what_is_your_plan_for_the_next_day }}</p>
+                        <h4>What are your blockers?</h4><p>{{ what_are_your_blockers }}</p>
+                        <h4>Do you have enough tasks for next three days?</h4><p>{{ do_you_have_enough_tasks_for_next_three_days }}</p>
+                        <h4>If you get stuck are you still able to work on something else?</h4><p>{{ if_you_get_stuck_are_you_still_able_to_work_on_something_else }}</p>
+                    {% endfor %}
+                    <br />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p>Regards,</p>
+                    <p>S7works Team.</p>
+                </td>
+            </tr>
+        <tbody>
+    </table>    
+</body>
+</html>

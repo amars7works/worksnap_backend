@@ -3,15 +3,11 @@ from celery.decorators import task
 from datetime import datetime
 from celery.utils.log import get_task_logger
 from reports_2.calculation_helper import add_remaining_leaves
-from .mailers import users_queryset
 
-from django.core.mail import get_connection, \
-								EmailMultiAlternatives, \
-								send_mail, \
-								EmailMessage
-from django.conf import settings
 from django.template import Context
-from django.template.loader import render_to_string
+from datetime import datetime,date
+
+from reports_2.mailers import send_mails_to_employer
 
 logger = get_task_logger(__name__)
 
@@ -24,48 +20,23 @@ def get_day_data():
 	except Exception as e:
 		logger.error(e,exc_info=True)
 
-# @task(name="reports_2.request_leave_mail")
-# def send_mail_leave_request():
-# 		try:
-# 			apply_leave_request()
-# 			logger.info("sucessful")
-# 		except Exception as e:
-# 			logger.error(e,exc_info=True)
-
-@task(name="reports_2.send_employee_request_mail")
+@task(name="reports.send_employee_request_mail")
 def send_requests_email_to_employer(data, from_email, username):
 	"""
-		Send email to employer when employee requests from frontend
+		Send email to employer when employee request a leave
 		Async.
 	"""
 	try:
-		from_email = settings.EMAIL_HOST_USER
-		data['username'] = username
-		data['employer_name'] = settings.EMPLOYER_NAME
-		# context_data = Context(data)
-
-		html_content = render_to_string('email/requests.html', data)
-
-		request_mail = EmailMessage(
-			"S7works leave request from {}".format(username), 
-			html_content, 
-			"S7works Admin <{}>".format(from_email), 
-			settings.EMPLOYER_EMAIL,
-			bcc = settings.MANAGER_EMAIL_PROJECT_ONE,
-			cc = settings.MANAGER_EMAIL_PROJECT_TWO
+		subject = "S7works leave request from {}"
+		template_directory = 'email/requests.html'
+		
+		send_mails_to_employer(
+			subject, 
+			template_directory, 
+			from_email=from_email, 
+			username=username, 
+			data=data
 		)
-		print(data)
-		print(EmailMessage)
-		request_mail.content_subtype = "html"
-		request_mail.send()
-
+		
 	except Exception as e:
 		logger.error(e, exc_info=True)
-
-@task(name="reports_2.send_users_daily_reports_mail")
-def send_mail_daily_report():
-		try:
-			users_queryset()
-			logger.info("sucessful")
-		except Exception as e:
-			logger.error(e,exc_info=True)

@@ -20,7 +20,6 @@ from django.core.mail import get_connection, \
 								EmailMultiAlternatives, \
 								send_mail
 from reports.models import UserDailyReport
-from reports.views import store_daily_report
 from django.contrib.auth import get_user_model
 from rest_framework.decorators import api_view
 from reports_2.tasks import send_requests_email_to_employer

@@ -8,7 +8,7 @@ from datetime import datetime,timedelta,date
 from calendar import monthrange
 import xml.etree.ElementTree as ET
 
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -875,29 +875,6 @@ def show_data_in_excel(request):
 	book.close()
 
 	return response
-
-def store_daily_report(request):
-	if request.method == "POST":
-		username = request.user
-		created_at = request.POST.get("created_at","Not filled anything")
-		q1 = request.POST.get("q1","Not filled anything")
-		q2 = request.POST.get("q2","Not filled anything")
-		q3 = request.POST.get("q3","Not filled anything")
-		q4 = request.POST.get("q4","Not filled anything")
-		q5 = request.POST.get("q5","Not filled anything")
-		UserDailyReport.objects.create(
-			username=username,created_at=created_at,what_was_done_this_day=q1,
-			what_is_your_plan_for_the_next_day = q2,
-			what_are_your_blockers = q3,
-			do_you_have_enough_tasks_for_next_three_days = q4,
-			if_you_get_stuck_are_you_still_able_to_work_on_something_else = q5)
-		messages.success(request, 'Daily report submitted')
-		all_users=get_user_names()
-		return render(request,'dailyreport.html',{'all_users':all_users})
-	else:
-		messages.error(request, 'Daily report did not submit')
-		all_users=get_user_names()
-		return render(request,'dailyreport.html',{'all_users':all_users})
 
 def parse_xml_data(user_names,monthrange,selected_month,year):
 	end_date = int(monthrange)

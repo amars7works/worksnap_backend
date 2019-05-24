@@ -1,5 +1,6 @@
 from django.conf.urls import url
 from reports import views
+from reports import report
 from graphene_django.views import GraphQLView
 from worksnaps_report.schema import schema
 
@@ -14,11 +15,12 @@ urlpatterns = [
     url(r'^users_summary/',views.create_users_summary,name='users summary reports'),
     url(r'^add_holiday/',views.add_holiday_list,name='add holiday'),
     url(r'^user_report/',views.show_data_in_excel,name='user report'),
-    url(r'^daily_report/', views.daily_report_html,name='daily_report'),
-    url(r'^store_daily_report/', views.store_daily_report,
-    	name=' store daily report'),
+    url(r'^daily_report/', report.daily_report.as_view(),
+    	name='create daily report'),
     url(r'^user_register/', views.user_register,
         name='user_register'),
     url(r'^register_form/', views.registration_html,name='register_form'),
      url(r'^summary_report/', views.usersummary.as_view(),name='summary_report'),
 ]
+
+# url(r'^daily_report/', views.daily_report_html,name='daily_report'),
