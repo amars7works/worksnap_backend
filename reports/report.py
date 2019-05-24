@@ -30,7 +30,7 @@ class daily_report(APIView):
     permission_classes(IsAuthenticated,)
 
     def post(self, request, format="json"):
-        created_at = request.data.get("created_at", date.today())
+        created_at = request.data.get("created_at", datetime.today())[:10]
         q1 = request.data.get("q1","Not filled!")
         q2 = request.data.get("q2","Not filled!")
         q3 = request.data.get("q3","Not filled!")
