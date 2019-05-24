@@ -20,7 +20,7 @@ def get_day_data():
 	except Exception as e:
 		logger.error(e,exc_info=True)
 
-@task(name="reports.send_employee_request_mail")
+@task(name="reports_2.send_employee_request_mail")
 def send_requests_email_to_employer(data, from_email, username):
 	"""
 		Send email to employer when employee request a leave

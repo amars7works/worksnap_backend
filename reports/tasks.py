@@ -19,7 +19,7 @@ def get_day_data():
 	except Exception as e:
 		logger.error(e,exc_info=True)
 
-@task(name="reports_2.send_users_daily_reports_mail")
+@task(name="reports.send_users_daily_reports_mail")
 def send_mail_daily_report():
 	try:
 		today_date = date.today()

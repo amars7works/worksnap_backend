@@ -25,8 +25,6 @@ from django.contrib.auth.models import User
 
 from reports.models import UserDailyReport
 
-from reports.tasks import send_mail_daily_report
-
 
 class daily_report(APIView):
     permission_classes(IsAuthenticated,)
@@ -47,6 +45,5 @@ class daily_report(APIView):
             do_you_have_enough_tasks_for_next_three_days = q4,
             if_you_get_stuck_are_you_still_able_to_work_on_something_else = q5
         )
-        send_mail_daily_report.delay()
         return Response(status=status.HTTP_200_OK)
 
