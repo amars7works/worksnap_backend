@@ -21,11 +21,11 @@
                     {% for daily_report in daily_reports %}
                         <h2>Daily Report -> {{ daily_report.username }}</h2>
                         <h4>Report posted at:</h4><p>{{ daily_report.created_at }}</p>
-                        <h4>What was done this day?</h4><p>{{ what_was_done_this_day }}</p>
-                        <h4>What is your plan for the next day?</h4><p>{{ what_is_your_plan_for_the_next_day }}</p>
-                        <h4>What are your blockers?</h4><p>{{ what_are_your_blockers }}</p>
-                        <h4>Do you have enough tasks for next three days?</h4><p>{{ do_you_have_enough_tasks_for_next_three_days }}</p>
-                        <h4>If you get stuck are you still able to work on something else?</h4><p>{{ if_you_get_stuck_are_you_still_able_to_work_on_something_else }}</p>
+                        <h4>What was done this day?</h4><p>{{ daily_report.what_was_done_this_day }}</p>
+                        <h4>What is your plan for the next day?</h4><p>{{ daily_report.what_is_your_plan_for_the_next_day }}</p>
+                        <h4>What are your blockers?</h4><p>{{ daily_report.what_are_your_blockers }}</p>
+                        <h4>Do you have enough tasks for next three days?</h4><p>{{ daily_report.do_you_have_enough_tasks_for_next_three_days }}</p>
+                        <h4>If you get stuck are you still able to work on something else?</h4><p>{{ daily_report.if_you_get_stuck_are_you_still_able_to_work_on_something_else }}</p>
                     {% endfor %}
                     <br />
                 </td>

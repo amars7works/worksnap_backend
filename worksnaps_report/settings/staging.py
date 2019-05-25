@@ -29,7 +29,7 @@ CELERY_BEAT_SCHEDULE = {
     'task':'reports_2.update_employee_leaves', 'schedule':crontab(0,3,day_of_month=1)
   },
   'send_users_daily_reports_mail':{
-    'task':'reports.send_users_daily_reports_mail','schedule':crontab(hour=22, day_of_week=6)
+    'task':'reports.send_users_daily_reports_mail','schedule':crontab(hour=23, minute=0, day_of_week="1-6")
   },
 }
 

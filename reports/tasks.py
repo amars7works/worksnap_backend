@@ -31,11 +31,12 @@ def send_mail_daily_report():
 
 		template_directory = 'email/daily_reports.html'
 
-		send_mails_to_employer(
-			subject, 
-			template_directory, 
-			data=data
-		)
+		if daily_reports:
+			send_mails_to_employer(
+				subject,
+				template_directory,
+				data=data
+			)
 
 		logger.info("Sucessful")
 	except Exception as e:
