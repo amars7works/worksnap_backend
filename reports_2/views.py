@@ -19,7 +19,11 @@ from django.conf import settings
 from django.core.mail import get_connection, \
 								EmailMultiAlternatives, \
 								send_mail
-from reports.models import UserDailyReport
+from reports.models import UserDailyReport,\
+							UsersSummaryReport,\
+							UsersList
+from reports.serializers import UsersSummaryReportSerializers,\
+								UserListSerializers
 from django.contrib.auth import get_user_model
 from rest_framework.decorators import api_view
 from reports_2.tasks import send_requests_email_to_employer
@@ -135,20 +139,20 @@ class Leave_Rejected_List(generics.RetrieveUpdateDestroyAPIView):
 		data = serializer.data[:]
 		return Response(data, status=status.HTTP_200_OK)
 
-class emp_details(generics.RetrieveUpdateDestroyAPIView):
-	serializer_class = userserializer
-	""" list all employees details display into the admin panel """
-	def get_queryset(self):
-		user = self.request.user
-		if user.is_superuser:
-			get_all_details = User.objects.all()
-			return get_all_details
-	def get(self,request,*args,**kwargs):
-		user = self.request.user
-		get_data = self.get_queryset()
-		serializer = userserializer(get_data, many=True)
-		data = serializer.data[:]
-		return Response(data, status=status.HTTP_200_OK)
+# class emp_details(generics.RetrieveUpdateDestroyAPIView):
+# 	serializer_class = userserializer
+# 	""" list all employees details display into the admin panel """
+# 	def get_queryset(self):
+# 		user = self.request.user
+# 		if user.is_superuser:
+# 			get_all_details = User.objects.all()
+# 			return get_all_details
+# 	def get(self,request,*args,**kwargs):
+# 		user = self.request.user
+# 		get_data = self.get_queryset()
+# 		serializer = userserializer(get_data, many=True)
+# 		data = serializer.data[:]
+# 		return Response(data, status=status.HTTP_200_OK)
 		
 
 
@@ -180,3 +184,61 @@ class DailyReportView(generics.CreateAPIView):
 			serializer.save()
 			return Response(serializer.data, status=status.HTTP_201_CREATED)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class emp_list(generics.RetrieveUpdateDestroyAPIView):
+	""" get data from UserSummaryReport model,
+		filter data by using date,
+		total present/leave employees list on a particular date
+	"""
+	permission_classes = (IsAuthenticated,)
+	serializer_class = UsersSummaryReportSerializers
+
+	def get_queryset(self):
+		user = self.request.user
+		if user.is_superuser:
+			date = self.request.GET.get('date', None)
+			emp_details = UsersSummaryReport.objects.filter(date=date)
+			return emp_details
+
+	def get(self,request,*args,**kwargs):
+		get_data = self.get_queryset()
+		date = self.request.GET.get('date', None)
+		empty_dict = {}
+		dummy_list=[]
+		submitted_users = []
+		serializer = UsersSummaryReportSerializers(get_data, many=True)
+		usernames_list = [u for u in UsersList.objects.all()]
+		for data in serializer.data:
+			submitted_users.append(data['user_id'])
+			data['status'] = "Present"
+
+		for user in usernames_list:
+			if user.user_id not in submitted_users:
+				empty_dict = {
+				'user_id':user.user_id,
+				'date' : date,
+				'user_name' : user.user_first_name+ " " +user.user_last_name,
+				'status' : "Absent"
+					}
+				dummy_list = dummy_list + [empty_dict]
+		data =serializer.data[:]+dummy_list
+
+		return Response(data, status=status.HTTP_200_OK)
+
+
+
+class emp_details(generics.RetrieveUpdateDestroyAPIView):
+	
+	serializer_class = UserListSerializers
+
+	def get_queryset(self):
+		user = self.request.user
+		if user.is_superuser:
+			emp_details = UsersList.objects.all()
+			return emp_details
+	def get(self,request,*args,**kwargs):
+		get_data = self.get_queryset()
+		serializer = UserListSerializers(get_data, many=True)
+		data = serializer.data[:]
+		return Response(data, status=status.HTTP_200_OK)
