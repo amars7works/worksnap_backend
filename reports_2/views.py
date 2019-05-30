@@ -68,15 +68,15 @@ class leave_details(generics.RetrieveUpdateDestroyAPIView):
 		get_data = self.get_queryset()
 		serializer = applyleaveserializer(get_data, many=True)
 		total_leaves = TotalLeaves.objects.all()
-		empty_dict = {}
+		remaining_leaves = {}
 		for single_data in total_leaves:
 			tests = ast.literal_eval(single_data.data).values()
 			for i in tests:
-				empty_dict[single_data.user.username] = i['accrued_leaves']
+				remaining_leaves[single_data.user.username] = i['accrued_leaves']
 		for dt in serializer.data:
 			user_obj=User.objects.get(id=dt['user'])
 			dt['username'] =  user_obj.username
-			dt['remainingleaves'] = empty_dict[user_obj.username]
+			dt['remainingleaves'] = remaining_leaves[user_obj.username]
 		data = serializer.data[:]
 		return Response(data, status=status.HTTP_200_OK)
 
