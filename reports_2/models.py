@@ -38,3 +38,11 @@ class ApplyLeave(models.Model):
 
 	def __str__(self):
 		return "%s"%(self.user)	
+
+class WorkFromHome(models.Model):
+	user = models.ForeignKey(User, on_delete=models.CASCADE)
+	from_date = models.DateTimeField()
+	to_date = models.DateTimeField()
+
+	def __str__(self):
+		return "%s"%(self.user)

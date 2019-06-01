@@ -199,10 +199,10 @@ class DailyReportView(generics.CreateAPIView):
 
 
 class emp_list(generics.RetrieveUpdateDestroyAPIView):
-	""" get data from UserSummaryReport model,
-		filter data by using date,
-		total present/leave employees list on a particular date
-	"""
+	# """ get data from UserSummaryReport model,
+	# 	filter data by using date,
+	# 	total present/leave employees list on a particular date
+	# """
 	permission_classes = (IsAuthenticated,)
 	serializer_class = UsersSummaryReportSerializers
 
