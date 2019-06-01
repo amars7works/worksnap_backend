@@ -10,7 +10,7 @@ from reports.models import ProjectsList,\
 class UsersSummaryReportSerializers(serializers.ModelSerializer):
 	class Meta:
 		model = UsersSummaryReport
-		fields = ('user_id','user_name', 'date', 'duration')
+		fields = ('user_id','user_name', 'date', 'duration',)
 
 class UserListSerializers(serializers.ModelSerializer):
 	class Meta:
