@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'reports',
     'reports_2',
     's7_auth',
+    'summary_report',
 ]
 
 MIDDLEWARE = [
