@@ -1,5 +1,5 @@
 from django.shortcuts import render
-
+import ast
 # Create your views here.
 from django.contrib.auth.models import User
 from django.core import serializers
@@ -21,7 +21,8 @@ from django.core.mail import get_connection, \
 								send_mail
 from reports.models import UserDailyReport,\
 							UsersSummaryReport,\
-							UsersList
+							UsersList,\
+							TotalLeaves
 from reports.serializers import UsersSummaryReportSerializers,\
 								UserListSerializers
 from django.contrib.auth import get_user_model
@@ -65,9 +66,16 @@ class leave_details(generics.RetrieveUpdateDestroyAPIView):
 	def get(self,request,*args,**kwargs):
 		get_data = self.get_queryset()
 		serializer = applyleaveserializer(get_data, many=True)
+		total_leaves = TotalLeaves.objects.all()
+		leaves_dict = {}
+		for single_data in total_leaves:
+			tests = ast.literal_eval(single_data.data).values()
+			for i in tests:
+				leaves_dict[single_data.user.username] = i['accrued_leaves']
 		for dt in serializer.data:
 			user_obj=User.objects.get(id=dt['user'])
 			dt['username'] =  user_obj.username
+			dt['remainingleaves'] = leaves_dict[user_obj.username]
 		data = serializer.data[:]
 		return Response(data, status=status.HTTP_200_OK)
 
@@ -187,10 +195,10 @@ class DailyReportView(generics.CreateAPIView):
 
 
 class emp_list(generics.RetrieveUpdateDestroyAPIView):
-	""" get data from UserSummaryReport model,
-		filter data by using date,
-		total present/leave employees list on a particular date
-	"""
+	# """ get data from UserSummaryReport model,
+	# 	filter data by using date,
+	# 	total present/leave employees list on a particular date
+	# """
 	permission_classes = (IsAuthenticated,)
 	serializer_class = UsersSummaryReportSerializers
 
