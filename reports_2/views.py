@@ -1,6 +1,7 @@
 from django.shortcuts import render
 
 # Create your views here.
+import ast
 from django.contrib.auth.models import User
 from django.core import serializers
 from rest_framework.response import Response
@@ -21,7 +22,8 @@ from django.core.mail import get_connection, \
 								send_mail
 from reports.models import UserDailyReport,\
 							UsersSummaryReport,\
-							UsersList
+							UsersList,\
+							TotalLeaves
 from reports.serializers import UsersSummaryReportSerializers,\
 								UserListSerializers
 from django.contrib.auth import get_user_model
@@ -65,9 +67,16 @@ class leave_details(generics.RetrieveUpdateDestroyAPIView):
 	def get(self,request,*args,**kwargs):
 		get_data = self.get_queryset()
 		serializer = applyleaveserializer(get_data, many=True)
+		total_leaves = TotalLeaves.objects.all()
+		remaining_leaves = {}
+		for single_data in total_leaves:
+			tests = ast.literal_eval(single_data.data).values()
+			for i in tests:
+				remaining_leaves[single_data.user.username] = i['accrued_leaves']
 		for dt in serializer.data:
 			user_obj=User.objects.get(id=dt['user'])
 			dt['username'] =  user_obj.username
+			dt['remainingleaves'] = remaining_leaves[user_obj.username]
 		data = serializer.data[:]
 		return Response(data, status=status.HTTP_200_OK)
 
