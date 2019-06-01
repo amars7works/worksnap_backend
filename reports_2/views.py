@@ -30,6 +30,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.decorators import api_view
 from reports_2.tasks import send_requests_email_to_employer
 
+
 class ApplyLeaveView(generics.CreateAPIView):
 	permission_classes = (IsAuthenticated,)		
 	serializer_class = applyleaveserializer
@@ -51,6 +52,8 @@ class ApplyLeaveView(generics.CreateAPIView):
 
 
 class leave_details(generics.RetrieveUpdateDestroyAPIView):
+	""" only admin can get all employees leave details
+	and update leave has been approved or rejected."""
 	permission_classes = (IsAuthenticated,)
 	serializer_class = applyleaveserializer
 
@@ -110,6 +113,7 @@ class leave_details(generics.RetrieveUpdateDestroyAPIView):
 		return Response(status=status.HTTP_204_NO_CONTENT)
 
 class Leave_Approved_List(generics.RetrieveUpdateDestroyAPIView):
+	""" admin can approved list of the employees leave """
 	permission_classes = (IsAuthenticated,)
 	serializer_class = applyleaveserializer
 
@@ -117,7 +121,7 @@ class Leave_Approved_List(generics.RetrieveUpdateDestroyAPIView):
 		user = self.request.user
 		if user.is_superuser:
 			local_time = date.today()
-			lve_aprd_list = ApplyLeave.objects.filter(leave_start_date__gte=local_time,leave_status="Approved")
+			lve_aprd_list = ApplyLeave.objects.filter(leave_status="Approved")
 			return lve_aprd_list
 
 	def get(self,request,*args,**kwargs):
@@ -130,6 +134,7 @@ class Leave_Approved_List(generics.RetrieveUpdateDestroyAPIView):
 		return Response(data, status=status.HTTP_200_OK)
 
 class Leave_Rejected_List(generics.RetrieveUpdateDestroyAPIView):
+	""" admin can rejected list of the employees leave """
 	permission_classes = (IsAuthenticated,)
 	serializer_class = applyleaveserializer
 
@@ -163,8 +168,6 @@ class Leave_Rejected_List(generics.RetrieveUpdateDestroyAPIView):
 # 		data = serializer.data[:]
 # 		return Response(data, status=status.HTTP_200_OK)
 		
-
-
 def leavestatus(request):
 	""" employee leave status response """
 	get_details = ApplyLeave.objects.all()
@@ -235,8 +238,6 @@ class emp_list(generics.RetrieveUpdateDestroyAPIView):
 
 		return Response(data, status=status.HTTP_200_OK)
 
-
-
 class emp_details(generics.RetrieveUpdateDestroyAPIView):
 	
 	serializer_class = UserListSerializers
@@ -251,3 +252,4 @@ class emp_details(generics.RetrieveUpdateDestroyAPIView):
 		serializer = UserListSerializers(get_data, many=True)
 		data = serializer.data[:]
 		return Response(data, status=status.HTTP_200_OK)
+
