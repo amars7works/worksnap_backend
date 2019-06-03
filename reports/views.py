@@ -383,11 +383,11 @@ def get_user_names():
 	user_name = []
 	for single_user in user_list:
 		user_email = single_user.user_email 
-	# 	first_name = single_user.user_first_name
-	# 	last_name = single_user.user_last_name
-	# 	username = first_name+' '+last_name
-		user_name.append(user_email)
-	# user_name.append("s7_worksnaps")
+	 	first_name = single_user.user_first_name
+	 	last_name = single_user.user_last_name
+	 	username = first_name+' '+last_name
+		user_name.append(username)
+	 user_name.append("s7_worksnaps")
 	return user_name
 
 def create_from_to_date(year,month):
