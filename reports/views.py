@@ -507,6 +507,7 @@ def users_summary(from_date,to_date,year,month,user_name):
 		leave_dates = get_leave_dates(whole_month_days,no_dates_holidays)
 		try:
 			user_profile = UserProfile.objects.get(user_name=user_name)
+			print(user_name,"username")
 			joined_date = user_profile.joined_date
 		except:
 			joined_date = None
@@ -535,7 +536,7 @@ def users_summary(from_date,to_date,year,month,user_name):
 			no_leaves_lop = len(leave_dates) + abs(lop_for_less_work)
 		else:
 			no_leaves_lop = len(leave_dates)
-		print(user_name,"user nameeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+
 		if (user_name):
 			#pass
 			user = User.objects.get(username=user_name)
@@ -554,7 +555,10 @@ def users_summary(from_date,to_date,year,month,user_name):
 						last_month = "{}-{}".format(int(year)-1,12)
 					else:
 						last_month = "{}-{}".format(year,int(month)-1)
-					accrued_leaves = total_leaves_data[str(last_month)]['accrued_leaves'] + 2
+					accrued_leaves = (
+					total_leaves_data[str(last_month)]['accrued_leaves'] + 
+					(2/no_working_days) * no_of_days_worked)
+					print(accrued_leaves,user_name)
 					if no_leaves_lop == 0:
 						total_leaves_data[year_month]['paid_leaves'] = 0
 						total_leaves_data[year_month]['unpaid_leaves'] = 0
