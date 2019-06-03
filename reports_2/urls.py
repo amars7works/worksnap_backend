@@ -3,8 +3,8 @@ from reports_2.views import *
 
 
 urlpatterns = [
-	url(r'^s7_login/', Login.as_view(),name='login_user'),
-	url(r'^logout/',Logout.as_view(), name='logout'),
+	# url(r'^s7_login/', Login.as_view(),name='login_user'),
+	# url(r'^logout/',Logout.as_view(), name='logout'),
 	url(r'^apply_leave/', ApplyLeaveView.as_view(), name='user apply for leave'),
 	url(r'^get_requests/',leave_details.as_view()),
 	url(r'^get_leave_status/', leavestatus, name = "leave status"),
