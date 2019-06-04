@@ -219,24 +219,26 @@ class emp_list(generics.RetrieveUpdateDestroyAPIView):
 		empty_dict = {}
 		dummy_list=[]
 		submitted_users = []
+		employee_data = {}
 		serializer = UsersSummaryReportSerializers(get_data, many=True)
 		usernames_list = [u for u in UsersList.objects.all()]
-		for data in serializer.data:
-			submitted_users.append(data['user_id'])
-			data['status'] = "Present"
+		for serializerdata in serializer.data:
+			submitted_users.append(serializerdata['user_id'])
+			serializerdata['status'] = "Present"
+			if serializerdata['user_id'] not in list(employee_data.keys()):
+				employee_data[serializerdata['user_id']]=serializerdata
+			else:
+				employee_data[serializerdata['user_id']]['duration']= str(int(employee_data[serializerdata['user_id']]['duration'])+int(serializerdata['duration']))
 
 		for user in usernames_list:
 			if user.user_id not in submitted_users:
-				empty_dict = {
+				employee_data[user.user_id] = {
 				'user_id':user.user_id,
 				'date' : date,
 				'user_name' : user.user_first_name+ " " +user.user_last_name,
 				'status' : "Absent"
 					}
-				dummy_list = dummy_list + [empty_dict]
-		data =serializer.data[:]+dummy_list
-
-		return Response(data, status=status.HTTP_200_OK)
+		return Response(employee_data.values(), status=status.HTTP_200_OK)
 
 class emp_details(generics.RetrieveUpdateDestroyAPIView):
 	
