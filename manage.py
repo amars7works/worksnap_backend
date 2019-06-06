@@ -8,8 +8,8 @@ def get_env_variable(var_name):
     try:
         return os.environ[var_name]
     except KeyError:
-        print("Set the %s environment variable" % (var_name))
-        print("Current environment set to local")
+        os.environ.setdefault('DJANGO_EXECUTION_ENVIRONMENT', 'LOCAL')
+        print('Current environment set to local')
 
 if __name__ == "__main__":
     '''
@@ -19,8 +19,10 @@ if __name__ == "__main__":
     DJANGO_EXECUTION_ENVIRONMENT=get_env_variable('DJANGO_EXECUTION_ENVIRONMENT')
 
     if DJANGO_EXECUTION_ENVIRONMENT == 'PRODUCTION':
+        print('Environment: Production')
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worksnaps_report.settings.production")
     elif DJANGO_EXECUTION_ENVIRONMENT == 'STAGING':
+        print('Environment: Staging')
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worksnaps_report.settings.staging")
     else:
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worksnaps_report.settings.local")
