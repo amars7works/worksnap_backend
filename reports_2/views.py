@@ -2,13 +2,14 @@ from django.shortcuts import render
 
 # Create your views here.
 import ast
+import json
 from django.contrib.auth.models import User
 from django.core import serializers
 from rest_framework.response import Response
-from reports_2.models import ApplyLeave
+from reports_2.models import ApplyLeave,WorkFromHome
 from reports_2.serializer import applyleaveserializer, \
 									userserializer,\
-									UserDailyReportSerializers
+									UserDailyReportSerializers									
 from rest_framework.views import APIView
 from rest_framework import status
 from datetime import datetime,date
@@ -255,3 +256,35 @@ class emp_details(generics.RetrieveUpdateDestroyAPIView):
 		data = serializer.data[:]
 		return Response(data, status=status.HTTP_200_OK)
 
+class emp_names_list(APIView):
+	"""getting employee names from user model and append to list"""
+	def get(self,request):
+		usernames = User.objects.all()
+		usernames_list = []
+		for username in usernames:
+			usernames_list.append(username.username)
+		return Response(usernames_list,status=status.HTTP_200_OK)
+
+class WorkFromHomes(APIView): 
+	""" parameters: Select date,Select work request,SUBMIT
+		-getting data from db based on the created_at,select_work_type-
+		and return to the workhome_list
+	"""
+	def get(self,request,format = "json"):
+		date = request.GET.get('Select date',None)
+		selectworktype = request.query_params.get('Select work request',None)
+		empnames = request.GET.get('SUBMIT',[])
+		empname= empnames.split(",")
+		workhome = WorkFromHome.objects.filter(created_at=date,
+								select_work_type=selectworktype)
+
+		workhome_list = []
+		for workhome_data in workhome.values():
+			if empname:
+				workhome_list.append(workhome_data)
+
+		for single_data in workhome_list:
+			user_obj=User.objects.get(id=single_data['user_id'])
+			single_data['username'] =  user_obj.username
+
+		return Response(workhome_list, status=status.HTTP_200_OK)
