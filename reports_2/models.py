@@ -40,9 +40,13 @@ class ApplyLeave(models.Model):
 		return "%s"%(self.user)	
 
 class WorkFromHome(models.Model):
+	work_type = (
+		("Work From Home","Work From Home"),
+		("Work From Office","Work From Office")
+		)
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
-	from_date = models.DateTimeField()
-	to_date = models.DateTimeField()
+	created_at = models.DateField()
+	select_work_type = models.CharField(choices = work_type,max_length = 25)
 
 	def __str__(self):
 		return "%s"%(self.user)

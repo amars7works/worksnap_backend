@@ -1,5 +1,5 @@
 from django.contrib import admin
-from reports_2.models import BankAccountNumber, ApplyLeave
+from reports_2.models import BankAccountNumber, ApplyLeave,WorkFromHome
 # Register your models here.
 
 class BankAccountNumberAdmin(admin.ModelAdmin):
@@ -13,3 +13,9 @@ class ApplyLeaveAdmin(admin.ModelAdmin):
 	search_fields = ('user',)
 
 admin.site.register(ApplyLeave,ApplyLeaveAdmin)
+
+class WorkFromHomeAdmin(admin.ModelAdmin):
+	list_display = ('user','created_at','select_work_type')
+	search_fields = ('user',)
+
+admin.site.register(WorkFromHome,WorkFromHomeAdmin)
