@@ -266,14 +266,14 @@ class emp_names_list(APIView):
 		return Response(usernames_list,status=status.HTTP_200_OK)
 
 class WorkFromHomes(APIView): 
-	""" parameters: date,select_work_type,submit
+	""" parameters: Select date,Select work request,SUBMIT
 		-getting data from db based on the created_at,select_work_type-
 		and return to the workhome_list
 	"""
 	def get(self,request,format = "json"):
-		date = request.GET.get('date',None)
-		selectworktype = request.query_params.get('select_work_type',None)
-		empnames = request.GET.get('submit',[])
+		date = request.GET.get('Select date',None)
+		selectworktype = request.query_params.get('Select work request',None)
+		empnames = request.GET.get('SUBMIT',[])
 		empname= empnames.split(",")
 		workhome = WorkFromHome.objects.filter(created_at=date,
 								select_work_type=selectworktype)
