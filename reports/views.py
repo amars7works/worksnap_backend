@@ -976,7 +976,6 @@ class usersummary(generics.RetrieveUpdateDestroyAPIView):
 		data_summary = summmary
 		return JsonResponse(data_summary)
 
-
 def get_xml_data(user_id,project_id,start_timestamp,end_timestamp):
 	'''
 		This function will work like get the user data from worksnaps
@@ -997,3 +996,60 @@ def get_xml_data(user_id,project_id,start_timestamp,end_timestamp):
 	# request_data_json = request_data.json()
 	# print(pprint.pprint(request_data_json))
 	return request_data
+	
+def all_users_xml_data(from_date,to_date):
+	try:
+		users_qs = UsersList.objects.only('user_id')
+		users_ids = [single_user.user_id for single_user in users_qs]
+		start_time = 1549049400
+		proceed = 1
+		count = 1
+		while from_date <= to_date:
+			print(from_date,"from_date")
+			for single_user_id in users_ids:
+				user_qs = UsersSummaryReport.objects.filter(user_id=single_user_id).values()
+				username = user_qs[0]['user_name']
+				user = User.objects.get(username=username)
+				print(from_date,from_date+timedelta(days=1))
+				daily_reports = UsersSummaryReport.objects.filter(
+					user_id=single_user_id,date__range=[from_date,from_date+timedelta(days=1)])
+				print(daily_reports)
+				projects_worked_on = []
+				for single_report in daily_reports:
+					projects_worked_on.append(single_report.project_name)
+				projects_worked_on = list(set(projects_worked_on))
+				print(projects_worked_on,"projects_worked_on")
+				projects_ids = []
+				for single_project in projects_worked_on:
+					try:
+						projects_qs = ProjectsList.objects.get(project_name=single_project)
+					except:
+						projects_qs = None
+					if projects_qs:
+						projects_ids.append(projects_qs.project_id)
+				projects_ids = list(set(projects_ids))
+				print(user,'..............',from_date)
+				len_project_ids = len(projects_ids)
+				start_time_inloop = start_time
+				for index,single_project in enumerate(projects_ids):
+					should_loop = 1
+					while should_loop <= 145:
+						should_loop = should_loop + 1
+						end_time = start_time_inloop+600
+						print(datetime.fromtimestamp(start_time_inloop))
+						print(start_time_inloop,"start time")
+						xml_data = get_xml_data(single_user_id,single_project,start_time_inloop,end_time)
+						print(xml_data.text,"data")
+						if '<user_id>' in xml_data.text:
+							UserXmldata.objects.create(
+								user=user,xml_data=xml_data.text,date=datetime.fromtimestamp(
+									start_time_inloop))
+						start_time_inloop = (start_time_inloop + 600)
+					print("exit second loop")
+					start_time_inloop = start_time_inloop - 600
+			proceed = 1
+			count = count + 1
+			start_time = start_time + 86400
+			from_date = from_date + timedelta(days=1)
+	except:
+		logging.exception("message")
