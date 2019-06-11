@@ -288,3 +288,15 @@ class WorkFromHomes(APIView):
 			single_data['username'] =  user_obj.username
 
 		return Response(workhome_list, status=status.HTTP_200_OK)
+
+	def post(self,request,format = "json"):
+		""" parameters : select_date,select_work_request,submit
+		"""
+		date = request.data.get('select_date')
+		selectworktype = request.data.get('select_work_request')
+		user_ids = request.data.get('submit',[])
+		for userids in user_ids:
+			workhome = WorkFromHome.objects.create(user=User(id=userids),created_at=date,
+								select_work_type=selectworktype)
+		
+		return Response(status=status.HTTP_200_OK)
