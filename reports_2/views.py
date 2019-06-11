@@ -53,15 +53,12 @@ class ApplyLeaveView(generics.CreateAPIView):
 
 
 class leave_details(generics.RetrieveUpdateDestroyAPIView):
-	""" only admin can get all employees leave details
-	and update leave has been approved or rejected."""
+	""" 
+	Only admin can see and approve employees leave requests.
+	"""
 	permission_classes = (IsAuthenticated,)
 	serializer_class = applyleaveserializer
 
-	# def get_queryset(self):
-	# 	user = self.request.user
-	# 	local_time = datetime.now()
-	# 	return ApplyLeave.objects.filter(leave_start_date__gte=local_time,leave_status=False,user=user)
 	def get_queryset(self):
 		user = self.request.user
 		if user.is_superuser:
@@ -80,7 +77,11 @@ class leave_details(generics.RetrieveUpdateDestroyAPIView):
 		for dt in serializer.data:
 			user_obj=User.objects.get(id=dt['user'])
 			dt['username'] =  user_obj.username
-			dt['remainingleaves'] = remaining_leaves[user_obj.username]
+			try:
+				dt['remainingleaves'] = remaining_leaves[user_obj.username]
+			except:
+				dt['remainingleaves'] = 'NA'
+
 		data = serializer.data[:]
 		return Response(data, status=status.HTTP_200_OK)
 
@@ -300,3 +301,25 @@ class WorkFromHomes(APIView):
 								select_work_type=selectworktype)
 		
 		return Response(status=status.HTTP_200_OK)
+
+
+# class totalleaves(APIView):
+
+# 	def get(self,request):
+# 		empnames =request.GET.get('SUBMIT',[])
+# 		# empname= empnames.split(',')
+# 		# print(empname)
+# 		totalleaves = TotalLeaves.objects.filter(user=empnames)
+# 		print(totalleaves,"oooooooooooooooooooooooo")
+# 		if empnames is not None:
+# 			t_leaves = {}
+# 			for single_data in totalleaves:
+# 				tests = ast.literal_eval(single_data.data).values()
+# 				for i in tests:
+# 					t_leaves[single_data.user.id] = [{
+# 														'user_name':single_data.user.username,
+# 														'user_id':single_data.user.id,
+# 														'total_leaves':i['total_leaves']
+# 													}]
+# 			return Response(t_leaves, status=status.HTTP_200_OK)
+
