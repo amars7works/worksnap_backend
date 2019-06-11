@@ -89,7 +89,7 @@ def worksnaps_report_html(request):
 		return render(request,'worksnaps_report.html',{'all_users':all_users})
 	else:
 		return JsonResponse(
-			{"Sorry dude you do not have permissions":"To access you must be super user"})
+			{"error":"To access you must be super user"})
 
 def daily_report_html(request):
 	user = request.user

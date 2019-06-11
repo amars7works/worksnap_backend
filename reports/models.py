@@ -27,6 +27,7 @@ class UsersSummaryReport(models.Model):
 	date = models.DateField()
 	duration = models.CharField(max_length=25)
 	project_name = models.CharField(max_length=200)
+	project_id = models.CharField(max_length=25)
 
 	def __str__(self):
 		return "%s,%s"%(self.date,self.user_name)
