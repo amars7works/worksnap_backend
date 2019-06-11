@@ -289,3 +289,24 @@ class WorkFromHomes(APIView):
 			single_data['username'] =  user_obj.username
 
 		return Response(workhome_list, status=status.HTTP_200_OK)
+
+
+# class totalleaves(APIView):
+
+# 	def get(self,request):
+# 		empnames =request.GET.get('SUBMIT',[])
+# 		# empname= empnames.split(',')
+# 		# print(empname)
+# 		totalleaves = TotalLeaves.objects.filter(user=empnames)
+# 		print(totalleaves,"oooooooooooooooooooooooo")
+# 		if empnames is not None:
+# 			t_leaves = {}
+# 			for single_data in totalleaves:
+# 				tests = ast.literal_eval(single_data.data).values()
+# 				for i in tests:
+# 					t_leaves[single_data.user.id] = [{
+# 														'user_name':single_data.user.username,
+# 														'user_id':single_data.user.id,
+# 														'total_leaves':i['total_leaves']
+# 													}]
+# 			return Response(t_leaves, status=status.HTTP_200_OK)

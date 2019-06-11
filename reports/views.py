@@ -977,4 +977,23 @@ class usersummary(generics.RetrieveUpdateDestroyAPIView):
 		return JsonResponse(data_summary)
 
 
-
+def get_xml_data(user_id,project_id,start_timestamp,end_timestamp):
+	'''
+		This function will work like get the user data from worksnaps
+		Args: Worksnaps user id, From date and To date
+		Return: JSON data for given user id
+	'''
+	user_ids = user_id
+	token = '23Mh2bkhQkUoqlU0KDfpVaYg9wXXsSgHr7YKdSm8'
+	users_url = "https://api.worksnaps.com:443/api/projects/{}/users/{}/time_entries.xml?".format(project_id,user_id)
+	client_token = '{}:{}'.format(token,"ignored").encode()
+	headers = {
+		'Authorization':'Basic'+' '+base64.b64encode(client_token).decode('utf-8'),
+		'Accept':'application/json',
+		'Content-Type':'application/json',
+	}
+	params={"from_timestamp":start_timestamp,"to_timestamp":end_timestamp}
+	request_data = requests.get(users_url,headers=headers,params=params)
+	# request_data_json = request_data.json()
+	# print(pprint.pprint(request_data_json))
+	return request_data
