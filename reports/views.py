@@ -265,7 +265,8 @@ def create_users_summary(request):
 								user_name=value.get('user_name',''),user_id=value.get(
 									'user_id',''),date=value.get('date',''),duration=value.get(
 									'duration_in_minutes',''),project_name=value.get(
-									'project_name',''))
+									'project_name',''), project_id=value.get(
+									'project_id', '0'))
 			from_date = from_date + timedelta(days = 1)
 
 		return JsonResponse({"Refresh":"Success"})
