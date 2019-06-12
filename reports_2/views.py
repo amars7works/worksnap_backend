@@ -24,13 +24,14 @@ from django.core.mail import get_connection, \
 from reports.models import UserDailyReport,\
 							UsersSummaryReport,\
 							UsersList,\
-							TotalLeaves
+							TotalLeaves,\
+							ProjectsList
 from reports.serializers import UsersSummaryReportSerializers,\
 								UserListSerializers
 from django.contrib.auth import get_user_model
 from rest_framework.decorators import api_view
 from reports_2.tasks import send_requests_email_to_employer
-
+from django.db.models import Q
 
 class ApplyLeaveView(generics.CreateAPIView):
 	permission_classes = (IsAuthenticated,)		
@@ -310,3 +311,31 @@ class WorkFromHomes(APIView):
 # 														'total_leaves':i['total_leaves']
 # 													}]
 # 			return Response(t_leaves, status=status.HTTP_200_OK)
+
+class daily_reportss(APIView):
+
+	""" parameters: from_date,to_date,name,project_name	"""
+	def get(self,request,format = "json"):
+
+		from_date = request.GET.get('from_date',None)
+		to_date = request.GET.get('to_date',from_date)
+		user_name = request.GET.get('name',None)
+		project_name = request.GET.get('project_name',None)
+		all_projects_names = ProjectsList.objects.all().values('project_name')
+
+		response = []
+		if project_name and from_date:
+			usersummaryreport = UsersSummaryReport.objects.filter(project_name=project_name,date=from_date)
+			usersummaryreport_users = [users.user_name for users in usersummaryreport]
+			daily_reports=UserDailyReport.objects.filter(username__in=usersummaryreport_users)
+			for reports_values in daily_reports.values():
+				response.append(reports_values)
+		elif user_name:
+			daily_reports = UserDailyReport.objects.filter(created_at__range=[from_date,to_date],username=user_name)
+			for reports_values in daily_reports.values():
+				response.append(reports_values)
+		else:
+			daily_reports = UserDailyReport.objects.filter(created_at=from_date)
+			for reports_values in daily_reports.values():
+				response.append(reports_values)
+		return Response(response,status=status.HTTP_200_OK)
