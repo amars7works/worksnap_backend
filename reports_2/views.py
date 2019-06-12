@@ -306,20 +306,20 @@ class totalleaves(APIView):
 			for single_data in totalleaves:
 				tests = ast.literal_eval(single_data.data).values()
 				for i in tests:
-					t_leaves[single_data.user.id] = [{
+					t_leaves[single_data.user.id] = {
 														'user_name':single_data.user.username,
 														'user_id':single_data.user.id,
 														'total_leaves':i['total_leaves']
-													}]
+													}
 		else:
 			totalleaves = TotalLeaves.objects.all()
 			for single_data in totalleaves:
 				tests = ast.literal_eval(single_data.data).values()
 				for i in tests:
-					t_leaves[single_data.user.id] = [{
+					t_leaves[single_data.user.id] = {
 														'user_name':single_data.user.username,
 														'user_id':single_data.user.id,
 														'total_leaves':i['total_leaves']
-													}]
+													}
 		
-		return Response(t_leaves, status=status.HTTP_200_OK)
+		return Response(t_leaves.values(), status=status.HTTP_200_OK)
