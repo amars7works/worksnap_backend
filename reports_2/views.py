@@ -302,6 +302,12 @@ class WorkFromHomes(APIView):
 		
 		return Response(status=status.HTTP_200_OK)
 
+class emp_names(APIView):
+	"""getting employee names from user model and append to list"""
+	def get(self,request):
+		usernames = User.objects.all().values('username','id')
+
+		return Response(usernames,status=status.HTTP_200_OK)
 
 # class totalleaves(APIView):
 
