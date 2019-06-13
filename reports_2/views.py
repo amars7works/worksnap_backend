@@ -321,7 +321,6 @@ class daily_reportss(APIView):
 		to_date = request.GET.get('to_date',from_date)
 		user_name = request.GET.get('name',None)
 		project_name = request.GET.get('project_name',None)
-		all_projects_names = ProjectsList.objects.all().values('project_name')
 
 		response = []
 		if project_name and from_date:
@@ -339,3 +338,9 @@ class daily_reportss(APIView):
 			for reports_values in daily_reports.values():
 				response.append(reports_values)
 		return Response(response,status=status.HTTP_200_OK)
+
+class project_names(APIView):
+	def get(self,request):
+		all_projects_names = ProjectsList.objects.all().values('project_name')
+
+		return Response(all_projects_names,status=status.HTTP_200_OK)
