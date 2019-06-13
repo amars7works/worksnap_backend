@@ -39,6 +39,12 @@ class ApplyLeave(models.Model):
 	def __str__(self):
 		return "%s"%(self.user)	
 
+class WorkFromHomePolicyCase(models.Model):
+	case = models.TextField(blank=True, null=True)
+
+	def __str__(self):
+		return "%s"%(self.case)
+
 class WorkFromHome(models.Model):
 	work_type = (
 		("Work From Home","Work From Home"),
@@ -47,6 +53,7 @@ class WorkFromHome(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	created_at = models.DateField()
 	select_work_type = models.CharField(choices = work_type,max_length = 25)
+	reason = models.ForeignKey('WorkFromHomePolicyCase', on_delete=models.CASCADE)
 
 	def __str__(self):
 		return "%s"%(self.user)
