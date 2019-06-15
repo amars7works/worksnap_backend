@@ -14,5 +14,10 @@ urlpatterns = [
 	url(r'^leave_rejected_list/', Leave_Rejected_List.as_view(), name='Rejected List'),	
 	url(r'^get_emp_list/', emp_details.as_view(), name='Employee List'),
 	url(r'^present_or_leave_list/', emp_list.as_view(), name='working emp List'),
+	url(r'^emp_name/', emp_names_list.as_view(), name='Employee Names'),
+	url(r'^workfromhome/', WorkFromHomes.as_view(), name='Work From Home'),
+	# (?# url(r'^leaves_filter/', totalleaves.as_view(), name='leaves filter'),)
+
+
 
 ]

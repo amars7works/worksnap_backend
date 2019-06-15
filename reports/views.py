@@ -89,7 +89,7 @@ def worksnaps_report_html(request):
 		return render(request,'worksnaps_report.html',{'all_users':all_users})
 	else:
 		return JsonResponse(
-			{"Sorry dude you do not have permissions":"To access you must be super user"})
+			{"error":"To access you must be super user"})
 
 def daily_report_html(request):
 	user = request.user
@@ -230,8 +230,9 @@ def get_all_users_daily_data(from_date,to_date):
 						UsersSummaryReport.objects.create(
 							user_name=value.get('user_name',''),user_id=value.get(
 								'user_id',''),date=value.get('date',''),duration=value.get(
-								'duration_in_minutes',''),project_name=value.get(
-								'project_name',''))
+								'duration_in_minutes',''), project_name=value.get(
+								'project_name',''), project_id=value.get(
+								'project_id', ''))
 		from_date = from_date + timedelta(days = 1)
 
 def create_users_summary(request):
@@ -265,7 +266,8 @@ def create_users_summary(request):
 								user_name=value.get('user_name',''),user_id=value.get(
 									'user_id',''),date=value.get('date',''),duration=value.get(
 									'duration_in_minutes',''),project_name=value.get(
-									'project_name',''))
+									'project_name',''), project_id=value.get(
+									'project_id', '0'))
 			from_date = from_date + timedelta(days = 1)
 
 		return JsonResponse({"Refresh":"Success"})
@@ -382,12 +384,12 @@ def get_user_names():
 	user_list = UsersList.objects.all()
 	user_name = []
 	for single_user in user_list:
-		user_email = single_user.user_email 
-	# 	first_name = single_user.user_first_name
-	# 	last_name = single_user.user_last_name
-	# 	username = first_name+' '+last_name
-		user_name.append(user_email)
-	# user_name.append("s7_worksnaps")
+		user_email = single_user.user_email
+		first_name = single_user.user_first_name
+		last_name = single_user.user_last_name
+		username = first_name+' '+last_name
+		user_name.append(username)
+	user_name.append("s7_worksnaps")
 	return user_name
 
 def create_from_to_date(year,month):
@@ -507,6 +509,7 @@ def users_summary(from_date,to_date,year,month,user_name):
 		leave_dates = get_leave_dates(whole_month_days,no_dates_holidays)
 		try:
 			user_profile = UserProfile.objects.get(user_name=user_name)
+			print(user_name,"username")
 			joined_date = user_profile.joined_date
 		except:
 			joined_date = None
@@ -535,7 +538,7 @@ def users_summary(from_date,to_date,year,month,user_name):
 			no_leaves_lop = len(leave_dates) + abs(lop_for_less_work)
 		else:
 			no_leaves_lop = len(leave_dates)
-		print(user_name,"user nameeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+
 		if (user_name):
 			#pass
 			user = User.objects.get(username=user_name)
@@ -554,7 +557,10 @@ def users_summary(from_date,to_date,year,month,user_name):
 						last_month = "{}-{}".format(int(year)-1,12)
 					else:
 						last_month = "{}-{}".format(year,int(month)-1)
-					accrued_leaves = total_leaves_data[str(last_month)]['accrued_leaves'] + 2
+					accrued_leaves = (
+					total_leaves_data[str(last_month)]['accrued_leaves'] + 
+					(2/no_working_days) * no_of_days_worked)
+					print(accrued_leaves,user_name)
 					if no_leaves_lop == 0:
 						total_leaves_data[year_month]['paid_leaves'] = 0
 						total_leaves_data[year_month]['unpaid_leaves'] = 0
@@ -972,5 +978,80 @@ class usersummary(generics.RetrieveUpdateDestroyAPIView):
 		data_summary = summmary
 		return JsonResponse(data_summary)
 
-
-
+def get_xml_data(user_id,project_id,start_timestamp,end_timestamp):
+	'''
+		This function will work like get the user data from worksnaps
+		Args: Worksnaps user id, From date and To date
+		Return: JSON data for given user id
+	'''
+	user_ids = user_id
+	token = '23Mh2bkhQkUoqlU0KDfpVaYg9wXXsSgHr7YKdSm8'
+	users_url = "https://api.worksnaps.com:443/api/projects/{}/users/{}/time_entries.xml?".format(project_id,user_id)
+	client_token = '{}:{}'.format(token,"ignored").encode()
+	headers = {
+		'Authorization':'Basic'+' '+base64.b64encode(client_token).decode('utf-8'),
+		'Accept':'application/json',
+		'Content-Type':'application/json',
+	}
+	params={"from_timestamp":start_timestamp,"to_timestamp":end_timestamp}
+	request_data = requests.get(users_url,headers=headers,params=params)
+	# request_data_json = request_data.json()
+	# print(pprint.pprint(request_data_json))
+	return request_data
+	
+def all_users_xml_data(from_date,to_date):
+	try:
+		users_qs = UsersList.objects.only('user_id')
+		users_ids = [single_user.user_id for single_user in users_qs]
+		start_time = 1549049400
+		proceed = 1
+		count = 1
+		while from_date <= to_date:
+			print(from_date,"from_date")
+			for single_user_id in users_ids:
+				user_qs = UsersSummaryReport.objects.filter(user_id=single_user_id).values()
+				username = user_qs[0]['user_name']
+				user = User.objects.get(username=username)
+				print(from_date,from_date+timedelta(days=1))
+				daily_reports = UsersSummaryReport.objects.filter(
+					user_id=single_user_id,date__range=[from_date,from_date+timedelta(days=1)])
+				print(daily_reports)
+				projects_worked_on = []
+				for single_report in daily_reports:
+					projects_worked_on.append(single_report.project_name)
+				projects_worked_on = list(set(projects_worked_on))
+				print(projects_worked_on,"projects_worked_on")
+				projects_ids = []
+				for single_project in projects_worked_on:
+					try:
+						projects_qs = ProjectsList.objects.get(project_name=single_project)
+					except:
+						projects_qs = None
+					if projects_qs:
+						projects_ids.append(projects_qs.project_id)
+				projects_ids = list(set(projects_ids))
+				print(user,'..............',from_date)
+				len_project_ids = len(projects_ids)
+				start_time_inloop = start_time
+				for index,single_project in enumerate(projects_ids):
+					should_loop = 1
+					while should_loop <= 145:
+						should_loop = should_loop + 1
+						end_time = start_time_inloop+600
+						print(datetime.fromtimestamp(start_time_inloop))
+						print(start_time_inloop,"start time")
+						xml_data = get_xml_data(single_user_id,single_project,start_time_inloop,end_time)
+						print(xml_data.text,"data")
+						if '<user_id>' in xml_data.text:
+							UserXmldata.objects.create(
+								user=user,xml_data=xml_data.text,date=datetime.fromtimestamp(
+									start_time_inloop))
+						start_time_inloop = (start_time_inloop + 600)
+					print("exit second loop")
+					start_time_inloop = start_time_inloop - 600
+			proceed = 1
+			count = count + 1
+			start_time = start_time + 86400
+			from_date = from_date + timedelta(days=1)
+	except:
+		logging.exception("message")

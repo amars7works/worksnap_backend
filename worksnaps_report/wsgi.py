@@ -18,8 +18,7 @@ def get_env_variable(var_name):
     try:
         return os.environ[var_name]
     except KeyError:
-        print("Set the %s environment variable" % (var_name))
-        print("Current environment set to local")
+        os.environ.setdefault('DJANGO_EXECUTION_ENVIRONMENT', 'LOCAL')
 
 '''
    This tells django which settings file to use, depending on 
@@ -28,10 +27,12 @@ def get_env_variable(var_name):
 DJANGO_EXECUTION_ENVIRONMENT = get_env_variable('DJANGO_EXECUTION_ENVIRONMENT')
 
 if DJANGO_EXECUTION_ENVIRONMENT == 'STAGING':
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worksnaps_report.settings.staging")
+    print('Environment: Staging')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'worksnaps_report.settings.staging')
 elif DJANGO_EXECUTION_ENVIRONMENT == 'PRODUCTION':
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worksnaps_report.settings.production")
+    print('Environment: Production')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'worksnaps_report.settings.production')
 else:
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worksnaps_report.settings.local")
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'worksnaps_report.settings.local')
 
 application = get_wsgi_application()

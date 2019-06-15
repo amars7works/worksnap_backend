@@ -13,7 +13,7 @@ class BankAccountNumber(models.Model):
 class ApplyLeave(models.Model):
 	TYPE_OF_REQUEST_CHOICE = (
 		("Sick_Leave","Sick Leave Request"),
-		("Vocational_Leave","Vacation Leave Request"),
+		("Vacational_Leave","Vacation Leave Request"),
 		("General_Leave","General Leave Request"),
 		("Night_Shift","Night Shift Request"),
 		("Work_From_Home","WorkFromHome Request"),
@@ -39,10 +39,21 @@ class ApplyLeave(models.Model):
 	def __str__(self):
 		return "%s"%(self.user)	
 
+class WorkFromHomePolicyCase(models.Model):
+	case = models.TextField(blank=True, null=True)
+
+	def __str__(self):
+		return "%s"%(self.case)
+
 class WorkFromHome(models.Model):
+	work_type = (
+		("Work From Home","Work From Home"),
+		("Work From Office","Work From Office")
+		)
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
-	from_date = models.DateTimeField()
-	to_date = models.DateTimeField()
+	created_at = models.DateField()
+	select_work_type = models.CharField(choices = work_type,max_length = 25)
+	reason = models.ForeignKey('WorkFromHomePolicyCase', on_delete=models.CASCADE)
 
 	def __str__(self):
 		return "%s"%(self.user)
