@@ -31,11 +31,8 @@ from reports.serializers import UsersSummaryReportSerializers,\
 from django.contrib.auth import get_user_model
 from rest_framework.decorators import api_view
 from reports_2.tasks import send_requests_email_to_employer
-<<<<<<< HEAD
 from django.db.models import Q
-=======
 from xlsxwriter.workbook import Workbook
->>>>>>> 26c3c5cba242623de60b5ac2876e95a02ea1adff
 
 class ApplyLeaveView(generics.CreateAPIView):
 	permission_classes = (IsAuthenticated,)		
