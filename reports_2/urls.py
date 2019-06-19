@@ -17,7 +17,7 @@ urlpatterns = [
 	url(r'^emp_name/', emp_names_list.as_view(), name='Employee Names'),
 	url(r'^workfromhome/', WorkFromHomes.as_view(), name='Work From Home'),
 	url(r'^total_leaves_filter/', totalleaves.as_view(), name='leaves filter'),
-
-
+	# (?# url(r'^leaves_filter/', totalleaves.as_view(), name='leaves filter'),)
+	url(r'^emp_names/', emp_names.as_view(), name='Employee Names'),
 
 ]

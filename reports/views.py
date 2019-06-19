@@ -89,7 +89,7 @@ def worksnaps_report_html(request):
 		return render(request,'worksnaps_report.html',{'all_users':all_users})
 	else:
 		return JsonResponse(
-			{"Sorry dude you do not have permissions":"To access you must be super user"})
+			{"error":"To access you must be super user"})
 
 def daily_report_html(request):
 	user = request.user
@@ -230,8 +230,9 @@ def get_all_users_daily_data(from_date,to_date):
 						UsersSummaryReport.objects.create(
 							user_name=value.get('user_name',''),user_id=value.get(
 								'user_id',''),date=value.get('date',''),duration=value.get(
-								'duration_in_minutes',''),project_name=value.get(
-								'project_name',''))
+								'duration_in_minutes',''), project_name=value.get(
+								'project_name',''), project_id=value.get(
+								'project_id', ''))
 		from_date = from_date + timedelta(days = 1)
 
 def create_users_summary(request):
@@ -265,7 +266,8 @@ def create_users_summary(request):
 								user_name=value.get('user_name',''),user_id=value.get(
 									'user_id',''),date=value.get('date',''),duration=value.get(
 									'duration_in_minutes',''),project_name=value.get(
-									'project_name',''))
+									'project_name',''), project_id=value.get(
+									'project_id', '0'))
 			from_date = from_date + timedelta(days = 1)
 
 		return JsonResponse({"Refresh":"Success"})
