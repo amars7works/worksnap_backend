@@ -18,6 +18,8 @@ urlpatterns = [
 	url(r'^workfromhome/', WorkFromHomes.as_view(), name='Work From Home'),
 	url(r'^total_leaves_filter/', totalleaves.as_view(), name='leaves filter'),
 	# (?# url(r'^leaves_filter/', totalleaves.as_view(), name='leaves filter'),)
+	url(r'^daily_reportss/', daily_reportss.as_view(), name='daily_reportss'),
+	url(r'^project_names/', project_names.as_view(), name='project names'),
 	url(r'^emp_names/', emp_names.as_view(), name='Employee Names'),
 
 ]
