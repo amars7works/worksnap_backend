@@ -10,6 +10,7 @@ class TimeEntry(models.Model):
 	project_id = models.CharField(max_length=20)
 	user_id = models.CharField(max_length=20)
 	user_ip = models.CharField(max_length=20)
+	activity_level = models.CharField(max_length=4, default='0')
 
 	def __str__(self):
                 return "%s"%(self.user_id)

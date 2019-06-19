@@ -31,7 +31,11 @@ from reports.serializers import UsersSummaryReportSerializers,\
 from django.contrib.auth import get_user_model
 from rest_framework.decorators import api_view
 from reports_2.tasks import send_requests_email_to_employer
+<<<<<<< HEAD
 from django.db.models import Q
+=======
+from xlsxwriter.workbook import Workbook
+>>>>>>> 26c3c5cba242623de60b5ac2876e95a02ea1adff
 
 class ApplyLeaveView(generics.CreateAPIView):
 	permission_classes = (IsAuthenticated,)		
@@ -273,8 +277,8 @@ class WorkFromHomes(APIView):
 		and return to the workhome_list
 	"""
 	def get(self,request,format = "json"):
-		date = request.GET.get('Select date',None)
-		selectworktype = request.query_params.get('Select work request',None)
+		date = request.GET.get('Select_date',None)
+		selectworktype = request.query_params.get('Select_work_request',None)
 		empnames = request.GET.get('SUBMIT',[])
 		empname= empnames.split(",")
 		workhome = WorkFromHome.objects.filter(created_at=date,
@@ -288,29 +292,73 @@ class WorkFromHomes(APIView):
 		for single_data in workhome_list:
 			user_obj=User.objects.get(id=single_data['user_id'])
 			single_data['username'] =  user_obj.username
+		
+		row_data = 1
+		column_data = 0
 
-		return Response(workhome_list, status=status.HTTP_200_OK)
+		response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+		response['Content-Disposition'] = "attachment; filename=WorkFromHome.xlsx"
+		book = Workbook(response,{'in_memory': True})
 
+		work_sheet = book.add_worksheet('WorkFromHome {}'.format(date))
+		cell_format = book.add_format()
+		cell_format.set_bold(True)
+		cell_format.set_bg_color('#85C1E9')
+		cell_format.set_align('center')
+		cell_format.set_font_size()
+		column_data +=1
+		work_sheet.write(row_data,column_data,'Employee Id',cell_format)
+		column_data1 = column_data + 1
+		work_sheet.write(row_data,column_data1,'Employee Name',cell_format)
+		column_data2 = column_data1 + 1
+		work_sheet.write(row_data,column_data2,'Create Date',cell_format)
+		column_data3 = column_data2 + 1
+		work_sheet.write(row_data,column_data3,'Work Type',cell_format)
+		work_sheet.set_column(1, 15, 15)
+		
+		emp_id = []
+		emp_name= []
+		date = []
+		work_type = []
+		for u in workhome_list:
+			emp_id.append(u['user_id'])
+			emp_name.append(u['username'])
+			date.append(str(u['created_at']))
+			work_type.append(u['select_work_type'])
 
-# class totalleaves(APIView):
+		for row_data,(ids,empname) in enumerate(zip(emp_id, emp_name)):
+			row_data += 2
+			work_sheet.write(row_data,column_data,ids)
+			work_sheet.write(row_data,column_data1,empname)
+    	
+		for row_data,(created_date,work_type) in enumerate(zip(date, work_type)):
+			row_data += 2
+			work_sheet.write(row_data,column_data2,created_date)
+			work_sheet.write(row_data,column_data3,work_type)
 
-# 	def get(self,request):
-# 		empnames =request.GET.get('SUBMIT',[])
-# 		# empname= empnames.split(',')
-# 		# print(empname)
-# 		totalleaves = TotalLeaves.objects.filter(user=empnames)
-# 		print(totalleaves,"oooooooooooooooooooooooo")
-# 		if empnames is not None:
-# 			t_leaves = {}
-# 			for single_data in totalleaves:
-# 				tests = ast.literal_eval(single_data.data).values()
-# 				for i in tests:
-# 					t_leaves[single_data.user.id] = [{
-# 														'user_name':single_data.user.username,
-# 														'user_id':single_data.user.id,
-# 														'total_leaves':i['total_leaves']
-# 													}]
-# 			return Response(t_leaves, status=status.HTTP_200_OK)
+		book.close()	
+		
+		return response
+		# return Response(workhome_list, status=status.HTTP_200_OK)
+
+	def post(self,request,format = "json"):
+		""" parameters : select_date,select_work_request,submit
+		"""
+		date = request.data.get('select_date')
+		selectworktype = request.data.get('select_work_request')
+		user_ids = request.data.get('submit',[])
+		for userids in user_ids:
+			workhome = WorkFromHome.objects.create(user=User(id=userids),created_at=date,
+								select_work_type=selectworktype)
+		
+		return Response(status=status.HTTP_200_OK)
+
+class emp_names(APIView):
+	"""getting employee names from user model and append to list"""
+	def get(self,request):
+		usernames = User.objects.all().values('username','id')
+
+		return Response(usernames,status=status.HTTP_200_OK)
 
 class daily_reportss(APIView):
 
@@ -344,3 +392,37 @@ class project_names(APIView):
 		all_projects_names = ProjectsList.objects.all().values('project_name')
 
 		return Response(all_projects_names,status=status.HTTP_200_OK)
+
+class totalleaves(APIView):
+	"""
+		Total_leaves model to get total_leaves.
+		print all users(user_id,user_name and total_leaves).
+		or filter by user_id
+		parameters : SUBMIT
+	"""
+	def get(self,request):
+		emp_ids =request.GET.get('SUBMIT',[])
+		t_leaves = {}
+		if emp_ids:
+			totalleaves = TotalLeaves.objects.filter(user=emp_ids)
+			for single_data in totalleaves:
+				tests = ast.literal_eval(single_data.data).values()
+				for i in tests:
+					t_leaves[single_data.user.id] = {
+														'user_name':single_data.user.username,
+														'user_id':single_data.user.id,
+														'total_leaves':i['total_leaves']
+													}
+		else:
+			totalleaves = TotalLeaves.objects.all()
+			for single_data in totalleaves:
+				tests = ast.literal_eval(single_data.data).values()
+				for i in tests:
+					t_leaves[single_data.user.id] = {
+														'user_name':single_data.user.username,
+														'user_id':single_data.user.id,
+														'total_leaves':i['total_leaves']
+													}
+		
+		return Response(t_leaves.values(), status=status.HTTP_200_OK)
+
