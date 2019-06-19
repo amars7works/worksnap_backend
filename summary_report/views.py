@@ -1,7 +1,7 @@
 from django.shortcuts import render
 import time
 import requests
-
+from django.http import JsonResponse
 from datetime import datetime,timedelta,date
 from calendar import monthrange
 from reports.models import TotalLeaves,\
@@ -14,31 +14,29 @@ from rest_framework.response import Response
 from django.shortcuts import render, HttpResponse,redirect
 from xlsxwriter.workbook import Workbook
 from summary_report.models import Salary,BankAccountNumbers
+from reports.views import *
+from reports.models import *
+import ast
+from django.forms.models import model_to_dict
 
 def show_data_in_excel(request):
-    
+    month = request.GET.get("month",0)
+    year = request.GET.get("year",2018)
+    month_start,monthrang = monthrange(int(year),int(month))
 
     row_data = 1
     column_data = 0
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = "attachment; filename=Worksnaps Report.xlsx"
+    response['Content-Disposition'] = "attachment; filename=Montly Summary Report.xlsx"
     book = Workbook(response,{'in_memory': True})
 
-    work_sheet = book.add_worksheet("Monthly Summary Report")
+    work_sheet = book.add_worksheet("{}-{}".format(month,year))
     cell_format = book.add_format()
     cell_format.set_bold(True)
     cell_format.set_bg_color('#85C1E9')
     cell_format.set_align('center')
     cell_format.set_font_size()
-
-    user_list = UserProfile.objects.all()
-    users_data = []
-    Joined_Date = []
-    for users_details in user_list:
-        users_data.append(users_details.user_name)
-        Joined_Date.append(str(users_details.joined_date))
-
 
     column_data +=1
     work_sheet.write(row_data,column_data,'Joined Date',cell_format)
@@ -58,76 +56,71 @@ def show_data_in_excel(request):
 
     work_sheet.set_column(1, 15, 15)
 
-    for row_data,(users_name,Joined_Date) in enumerate(zip(users_data, Joined_Date)):
-        row_data += 2
-        work_sheet.write(row_data,column_data,Joined_Date)
-        work_sheet.write(row_data,column_data1,users_name)
-    
-    bnk_acnt_details = BankAccountNumbers.objects.all()
-    user_names_copy = users_data.copy()
-    for row_data,username in enumerate(user_names_copy):
-        row_data += 2
-        for single_user in bnk_acnt_details:
-            if username == single_user.user.username:
-                work_sheet.write(row_data,column_data6,single_user.account_number)
-    
-    salary_details = Salary.objects.all()
-    user_names = users_data.copy()
-    for row_data,username in enumerate(user_names):
-        row_data += 2
-        for user_salary in salary_details:
-            if username == user_salary.user.username:
-                work_sheet.write(row_data,column_data2,user_salary.Salary)
+    users_data = monthly_amount_calc(request)
 
-    Total_working_days = 31
-    Total_worked_days = 30
-
-    salary_list = []
-    salary_details = Salary.objects.all()
-    for single_salary in salary_details:
-        salary_list.append(single_salary.Salary)
-
-    single_user_perday = []
-    Net_amount = []
-    for PerDay in salary_list:
-        calculated_salary = int(PerDay) / Total_working_days
-        single_user_perday.append(calculated_salary)
-
-        for single_user_salary in single_user_perday:
-            netamount = single_user_salary * Total_worked_days
-            Net_amount.append(round(netamount))
-
-    for row_data,(PerDay,Net_amount) in enumerate(zip(single_user_perday,Net_amount)):
-        row_data += 2
-        work_sheet.write(row_data,column_data3,PerDay)
-        work_sheet.write(row_data,column_data4,Total_working_days)
-        work_sheet.write(row_data,column_data5,Net_amount)
-
-
+    for month_data in users_data.values():
+        row_data += 1
+        work_sheet.write(row_data,column_data,month_data['joined_date'])
+        work_sheet.write(row_data,column_data1,month_data['Name'])
+        work_sheet.write(row_data,column_data2,month_data['salary'])
+        work_sheet.write(row_data,column_data3,month_data['per_day_salary'])
+        work_sheet.write(row_data,column_data4,month_data['No of days worked'])
+        work_sheet.write(row_data,column_data5,month_data['salary_to_be_paid'])
+        work_sheet.write(row_data,column_data6,month_data['account_number'])
 
     book.close()
 
     return response
 
-# def salary_perday(request):
-#     Total_working_days = 31
-#     Total_worked_days = 30
-#     salary_list = []
-#     salary_details = Salary.objects.all()
-#     for single_salary in salary_details:
-#         salary_list.append(single_salary.Salary)
+def monthly_amount_calc(request):
+    month = request.GET.get("month",0)
+    year = request.GET.get("year",2018)
+    user_name = request.GET.get("user_name","")
+    month_start,monthrang = monthrange(int(year),int(month))
+    from_date = "%s-%s-01"% (year, month)
+    to_date = "%s-%s-%s" % (year,month,monthrang)
+    t_working_days = working_days(year,month,from_date,to_date)
+    total_working_days = list(t_working_days)[0]
 
-#     single_user_perday = []
-#     Net_amount = []
-#     for user_salary in salary_list:
-#         calculated_salary = int(user_salary) / Total_working_days
-#         single_user_perday.append(calculated_salary)
-        
-#         for single_user_salary in single_user_perday:
-#             netamount = single_user_salary * Total_worked_days
-#             Net_amount.append(round(netamount))
+    summary = users_summary(from_date,to_date,year,month,"all")
+    stored,user_names = list(summary)
 
+    month_data = {}
+    for user_dt in stored.values():
+        leaves_count=user_dt['No of leaves']
+        remaining_leaves_dict = TotalLeaves.objects.get(user__username=user_dt['Name'])
+        try:
+            remaining_leaves = ast.literal_eval(remaining_leaves_dict.data)['%s-%s'%(year,int(month)-1)]['accrued_leaves']
+        except KeyError:
+            remaining_leaves = 0
 
-    
-#     return single_user_perday,Net_amount
+        worked_days = user_dt['No of days worked'] 
+        worked_days = total_working_days if worked_days >= total_working_days else worked_days
+        month_data[user_dt['Name']] = {
+            'Name': user_dt['Name'],
+            'No of days worked': worked_days 
+        }
+    for single_user_salary in Salary.objects.all():
+        if  single_user_salary.user.username in user_names:
+            per_day = int(single_user_salary.Salary) / total_working_days
+            net_amount = month_data[single_user_salary.user.username]['No of days worked'] * per_day
+            month_data[single_user_salary.user.username].update({
+                'salary': single_user_salary.Salary,
+                'per_day_salary': per_day,
+                'salary_to_be_paid': net_amount,
+                })
+            bank_account = list(BankAccountNumber.objects.filter(
+                user=single_user_salary.user).values('account_number'))
+            if bank_account:
+                month_data[single_user_salary.user.username].update(bank_account[0])
+            else:
+                month_data[single_user_salary.user.username].update({'account_number': "Not Specified"})
+            joined_date = list(UserProfile.objects.filter(
+                user_name=single_user_salary.user.username).values('joined_date'))
+            joined_date = {'joined_date': str(joined_date[0]['joined_date'])}
+            month_data[single_user_salary.user.username].update(joined_date)  
 
+    # return JsonResponse(month_data[user_name])
+    if user_name:
+        return {user_name: month_data[user_name]}
+    return month_data
