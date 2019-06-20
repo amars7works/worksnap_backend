@@ -21,5 +21,6 @@ urlpatterns = [
 	url(r'^daily_reportss/', daily_reportss.as_view(), name='daily_reportss'),
 	url(r'^project_names/', project_names.as_view(), name='project names'),
 	url(r'^emp_names/', emp_names.as_view(), name='Employee Names'),
+	url(r'^filtered_daily_user/',filtered_daily_user.as_view(),name = 'filtered_daily _user'),
 
 ]

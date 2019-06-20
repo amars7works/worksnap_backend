@@ -12,7 +12,7 @@ from reports_2.serializer import applyleaveserializer, \
 									UserDailyReportSerializers									
 from rest_framework.views import APIView
 from rest_framework import status
-from datetime import datetime,date
+from datetime import datetime,date, timedelta
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from django.http import Http404
@@ -423,3 +423,40 @@ class totalleaves(APIView):
 		
 		return Response(t_leaves.values(), status=status.HTTP_200_OK)
 
+class filtered_daily_user(generics.RetrieveUpdateDestroyAPIView):
+
+	def get_queryset(self):
+		user = self.request.user
+		if user.is_superuser:
+			yesterday = str(date.today() - timedelta(days = 1))
+			yesterday = '2019-04-30'
+			emp_details = UsersSummaryReport.objects.filter(date=yesterday)
+			return emp_details
+
+	def get(self,request,*args,**kwargs):
+		get_data = self.get_queryset()
+
+		serializer = UsersSummaryReportSerializers(get_data, many=True)
+		presentUser = []
+		for serializerdata in serializer.data:
+			presentUser.append(serializerdata['user_name'])
+
+		presentUser = list(dict.fromkeys(presentUser))
+		submittedUser = []
+		notSubmitterUser = []
+		daily_report_yesterday = UserDailyReport.objects.filter(created_at= '2019-04-30')#=str(date.today() - timedelta(days = 1)))
+		
+		reportPeople = [user.username for user in daily_report_yesterday]
+
+		response = []
+		for user in presentUser:
+			if user in reportPeople:
+				submittedUser.append(user)
+			else:
+				notSubmitterUser.append(user)
+
+		response = {
+			'submitted': submittedUser,
+			'notSubmitted': notSubmitterUser
+		}
+		return Response(response,status=status.HTTP_200_OK)	
