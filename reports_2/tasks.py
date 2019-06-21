@@ -7,7 +7,10 @@ from reports_2.calculation_helper import add_remaining_leaves
 from django.template import Context
 from datetime import datetime,date
 
-from reports_2.mailers import send_mails_to_employer
+from reports_2.mailers import send_mails_to_employer, send_mails_to_owner
+
+from celery.task.schedules import crontab
+from celery.decorators import periodic_task
 
 logger = get_task_logger(__name__)
 
@@ -40,3 +43,29 @@ def send_requests_email_to_employer(data, from_email, username):
 		
 	except Exception as e:
 		logger.error(e, exc_info=True)
+
+
+
+@periodic_task(run_every=crontab(hour=0, minute=15, ))
+def send_daily_report_count():
+
+	"""
+		Send email to the owner at 00:15 of previous days daily report's count
+	"""
+
+	print("daily report count email started")
+
+	try:
+		template_directory = 'email/dailyReportCount.html'
+
+		send_mails_to_owner(template_directory)
+
+	except Exception as e:
+		logger.error(e, exc_info=True)
+
+    
+
+
+
+
+

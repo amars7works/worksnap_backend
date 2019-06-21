@@ -41,3 +41,5 @@ def send_mail_daily_report():
 		logger.info("Sucessful")
 	except Exception as e:
 		logger.error(e,exc_info=True)
+
+

@@ -22,5 +22,5 @@ urlpatterns = [
 	url(r'^project_names/', project_names.as_view(), name='project names'),
 	url(r'^emp_names/', emp_names.as_view(), name='Employee Names'),
 	url(r'^filtered_daily_user/',filtered_daily_user.as_view(),name = 'filtered_daily _user'),
-
+	url(r'^daily_report_count',DailyReportCount.as_view(),name = 'daily_report_count')
 ]

@@ -45,7 +45,7 @@ CELERY_TIMEZONE = 'Asia/Kolkata'
 
 
 # Send request/report emails to
-EMPLOYER_EMAIL = ['sai@s7works.io']
+EMPLOYER_EMAIL = ['amars@s7works.io']
 EMPLOYER_NAME = 'Admin'
 MANAGER_EMAIL_PROJECT_ONE = ['manis@s7works.io']
 MANAGER_EMAIL_PROJECT_TWO = ['vikramp@s7works.io']
